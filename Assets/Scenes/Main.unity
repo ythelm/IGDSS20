@@ -494,6 +494,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c4fb070738f3544ea560ef08186d72d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  MainCamera: {fileID: 512232609}
+  mapSize: 100
+  rightMouseClickHold: 0
+  MousePosition: {x: 0, y: 0}
+  CameraPosition: {x: 0, y: 0, z: 0}
 --- !u!4 &834136087
 Transform:
   m_ObjectHideFlags: 0
