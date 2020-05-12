@@ -19,11 +19,17 @@ public class MouseManager : MonoBehaviour
     //public float minZ;
 
 
+    //define field of view that the Camera has
+    float maxFieldofView;
+    float minFieldofView;
+
 
 
     // Start is called before the first frame update
     void Start()
     {
+        maxFieldofView = 100.0f;
+        minFieldofView = 1.0f;
 
 
     }
@@ -31,9 +37,25 @@ public class MouseManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-           moveCameraXZ();
+        moveCameraXZ();
+
+        zoomLimit();
+
+        getTileInfo();
+            
       }
 
+
+
+   //set zoom limit
+   public void zoomLimit()
+    {
+
+        MainCamera.fieldOfView += 5 * Input.GetAxis("Mouse ScrollWheel");
+        //Use Mathf.Clamp to keep the value always lower than 'max' and greater than 'min'
+        MainCamera.fieldOfView = Mathf.Clamp(MainCamera.fieldOfView, minFieldofView, maxFieldofView);
+
+    }
 
 
     // Camera Movement on the XZ-plane while holding right Mouse Button
@@ -56,7 +78,7 @@ public class MouseManager : MonoBehaviour
             {
                 MoveCamera();
             }
-        }
+     }
 
          void MoveCamera()
         {
@@ -74,7 +96,28 @@ public class MouseManager : MonoBehaviour
                 new Vector3(newXPos, CameraPosition.y, newZPos), MainCamera.transform.rotation);
         }
 
+        public void getTileInfo()
+	{
+        if (Input.GetMouseButtonDown(0))
+        {
+            var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            RaycastHit hit;
+
+            if (Physics.Raycast(ray, out hit))
+            {
+                Debug.Log("The tile type is as follow: "+ hit.collider.name);
+            }
+        }
+
+        if (Input.GetMouseButtonUp(0))
+        {
+
+        }
     }
+
+    }
+
+    
 
 
     //{
