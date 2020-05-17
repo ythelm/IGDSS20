@@ -4,22 +4,13 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
-    //create heightmap
+
+    //initiate Level Objects and heightmap
     public Texture2D heightmap;
-
-    //heightscaling
     public float heightscale = 10f;
-
-    //GameObjects
-    public GameObject waterTile;
-    public GameObject sandTile;
-    public GameObject grassTile;
-    public GameObject forestTile;
-    public GameObject stoneTile;
-    public GameObject mountainTile;
-
+    public GameObject waterTile, sandTile, grassTile, forestTile, stoneTile, mountainTile;
   
-
+ 
     void Start()
     {
         float multiplier = 10;
@@ -28,7 +19,8 @@ public class GameManager : MonoBehaviour
         float xLimit = ((heightmap.height - 1) * (5f / 6f) * multiplier) / 2f;
         float zLimit = ((heightmap.height - 0.5f) * multiplier) / 2f;
 
-        //Set Tiles
+
+        //Add tiles to the heightmap
         for (int x = 0; x < heightmap.width; x++)
         {
             for (int z = 0; z < heightmap.height; z++)
@@ -42,26 +34,26 @@ public class GameManager : MonoBehaviour
     }
 
 
-    // Returns a Prefab depending on given height
+   //adding prefabs to the heightmap
     GameObject HeightToTile(float height)
     {
         if (height == 0)
         {
             return waterTile;
         }
-        if (height <= 0.2)
+        else if (height <= 0.2)
         {
             return sandTile;
         }
-        if (height <= 0.4)
+        else if (height <= 0.4)
         {
             return grassTile;
         }
-        if (height <= 0.6)
+       else if (height <= 0.6)
         {
             return forestTile;
         }
-        if (height <= 0.8)
+        else if (height <= 0.8)
         {
             return stoneTile;
         }
