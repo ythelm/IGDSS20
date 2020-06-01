@@ -4,139 +4,100 @@ using UnityEngine;
 
 public class MouseManager : MonoBehaviour
 {
-    public Camera MainCamera;
-    public int mapSize;
-    public bool rightMouseClickHold;
-    public const float speed = 1f;
 
-    // mouse movement
-    public Vector2 MousePosition;
-    public Vector3 CameraPosition;
+    public Camera _camera; //The camera object
 
-    //public float maxX;
-    //public float minX;
-    //public float maxZ;
-    //public float minZ;
+    private Vector3 _lastPanPosition; //The position of the mouse when the dragging begins
 
+    private float PanSpeed = 200f; //Movement speed multiplier of the camera translation
+    private float ZoomSpeedMouse = 50f; //Multiplier for zoom factor
 
-    //define field of view that the Camera has
-    float maxFieldofView;
-    float minFieldofView;
-
+    public float[] BoundsX = new float[2]; //Camera bounds on the X axis
+    public float[] BoundsZ = new float[2]; //Camera bounds on the ZX axis
+    public float[] ZoomBounds = new float[] { 10f, 85f }; //Zoom bounds on the Y axis
 
 
     // Start is called before the first frame update
     void Start()
     {
-        maxFieldofView = 100.0f;
-        minFieldofView = 1.0f;
-
 
     }
 
     // Update is called once per frame
     void Update()
     {
-        moveCameraXZ();
-
-        zoomLimit();
-
-        getTileInfo();
-            
-      }
-
-
-
-   //set zoom limit
-   public void zoomLimit()
-    {
-
-        MainCamera.fieldOfView += 5 * Input.GetAxis("Mouse ScrollWheel");
-        //Use Mathf.Clamp to keep the value always lower than 'max' and greater than 'min'
-        MainCamera.fieldOfView = Mathf.Clamp(MainCamera.fieldOfView, minFieldofView, maxFieldofView);
-
+        MouseSelection();
+        MousePanning();
     }
 
-
-    // Camera Movement on the XZ-plane while holding right Mouse Button
-
-    public void moveCameraXZ()
+    void MouseSelection()
     {
-            if (Input.GetMouseButtonDown(1))
-            {
-                rightMouseClickHold = true;
-                MousePosition = Input.mousePosition;
-                CameraPosition = MainCamera.transform.position;
-            }
-
-            if (Input.GetMouseButtonUp(1))
-            {
-                rightMouseClickHold = false;
-            }
-
-            if (rightMouseClickHold)
-            {
-                MoveCamera();
-            }
-     }
-
-         void MoveCamera()
-        {
-            var xOffset = (MousePosition.x - Input.mousePosition.x) * Time.deltaTime * speed;
-            var yOffset = (MousePosition.y - Input.mousePosition.y) * Time.deltaTime * speed;
-
-            // change to xCamPos + yOffset and zCamPos + xOffset to disable auto movement
-            var newXPos = CameraPosition.x += yOffset;
-            var newZPos = CameraPosition.z += xOffset;
-
-            newXPos = Mathf.Clamp(newXPos, 0, mapSize);
-            newZPos = Mathf.Clamp(newZPos, 0, mapSize);
-
-            MainCamera.transform.SetPositionAndRotation(
-                new Vector3(newXPos, CameraPosition.y, newZPos), MainCamera.transform.rotation);
-        }
-
-        public void getTileInfo()
-	{
         if (Input.GetMouseButtonDown(0))
         {
-            var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
+            Ray ray = _camera.ScreenPointToRay(Input.mousePosition);
+            int layerMask = LayerMask.GetMask("Tiles");
 
-            if (Physics.Raycast(ray, out hit))
+            if (Physics.Raycast(ray, out hit, 1000f, layerMask))
             {
-                Debug.Log("The tile type is as follow: "+ hit.collider.name);
+                Debug.Log("You selected the " + hit.collider.name);
             }
         }
+    }
 
-        if (Input.GetMouseButtonUp(0))
+    void MousePanning()
+    {
+        // On mouse down, capture it's position.
+        // Otherwise, if the mouse is still down, pan the camera.
+        if (Input.GetMouseButtonDown(1))
         {
-
+            _lastPanPosition = Input.mousePosition;
         }
+        else if (Input.GetMouseButton(1))
+        {
+            PanCamera(Input.mousePosition);
+        }
+
+        // Check for scrolling to zoom the camera
+        float scroll = Input.GetAxis("Mouse ScrollWheel");
+        ZoomCamera(scroll, ZoomSpeedMouse);
     }
 
+    void PanCamera(Vector3 newPanPosition)
+    {
+        // Determine how much to move the camera
+        Vector3 offset = _camera.ScreenToViewportPoint(_lastPanPosition - newPanPosition);
+        Vector3 move = new Vector3(-offset.y * PanSpeed, 0, offset.x * PanSpeed);
+
+        // Perform the movement
+        _camera.transform.Translate(move, Space.World);
+
+        // Ensure the camera remains within bounds.
+        Vector3 pos = _camera.transform.position;
+        pos.x = Mathf.Clamp(_camera.transform.position.x, BoundsX[0], BoundsX[1]);
+        pos.z = Mathf.Clamp(_camera.transform.position.z, BoundsZ[0], BoundsZ[1]);
+        _camera.transform.position = pos;
+
+        // Cache the position
+        _lastPanPosition = newPanPosition;
     }
 
-    
+    void ZoomCamera(float offset, float speed)
+    {
+        if (offset == 0)
+        {
+            return;
+        }
 
+        _camera.fieldOfView = Mathf.Clamp(_camera.fieldOfView - (offset * speed), ZoomBounds[0], ZoomBounds[1]);
+    }
 
-    //{
-    //    var x = Input.GetAxisRaw("Mouse X") * Time.deltaTime * speed;
-    //    var z = Input.GetAxisRaw("Mouse Y") * Time.deltaTime * speed;
-    //
-    //    if (Input.GetAxis("Mouse X") > 0 || Input.GetAxis("Mouse X") < 0)
-    // {
+    public void InitializeBounds(float Xleft, float Xright, float Ztop, float Zbottom)
+    {
 
+        BoundsX = new float[2] { Xleft, Xright };
+        BoundsZ = new float[2] { Ztop, Zbottom };
 
-    // MainCamera.transform.position += new Vector3(x,
-    //                                   0.0f, z) ;
-
-    // Vector3 newPos = MainCamera.transform.position;
-    // var newPosMitBoundaries = new Vector3(Mathf.Clamp(newPos.x, newPos.x, newPos.x), newPos.y, Mathf.Clamp(newPos.z, newPos.z, newPos.z));
-
-    //MainCamera.transform.position = newPosMitBoundaries;
-    //  }
-
-
-
-
+        _camera.transform.position = new Vector3((Xleft + Xright) / 2, _camera.transform.position.y, (Ztop + Zbottom) / 2);
+    }
+}
