@@ -233,12 +233,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c4fb070738f3544ea560ef08186d72d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  scrollSpeed: 100
-  panSpeed: 7
-  bounds:
-    m_Center: {x: 0, y: 0, z: 0}
-    m_Extent: {x: 0, y: 0, z: 0}
-  cam: {fileID: 0}
+  _camera: {fileID: 512232609}
+  BoundsX:
+  - 0
+  - 0
+  BoundsZ:
+  - 0
+  - 0
+  ZoomBounds:
+  - 10
+  - 85
 --- !u!4 &834136087
 Transform:
   m_ObjectHideFlags: 0
@@ -419,6 +423,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1768092942}
   - component: {fileID: 1768092941}
+  - component: {fileID: 1768092943}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -438,22 +443,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dd580981bf7ab5845976a690fd1035a2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  heightMap: {fileID: 0}
-  waterTile: {fileID: 0}
-  sandTile: {fileID: 0}
-  grassTile: {fileID: 0}
-  forestTile: {fileID: 0}
-  stoneTile: {fileID: 0}
-  mountainTile: {fileID: 0}
-  _buildingPrefabs: []
+  heightMap: {fileID: 2800000, guid: 6c8b8b5dee9104b429f737ec1d927ec9, type: 3}
+  waterTile: {fileID: 2064574628029001573, guid: 2a914b6a4ef15cb4ca77257050f15f29,
+    type: 3}
+  sandTile: {fileID: 6461190606886679958, guid: ff7ef13f88a71c94eb42898019398dcd,
+    type: 3}
+  grassTile: {fileID: 5575372501429904281, guid: f549c24ecaa45cb498514352a3675d1c,
+    type: 3}
+  forestTile: {fileID: 3331960066271536643, guid: beaf3e6eeb231784387cb99da90a7c7d,
+    type: 3}
+  stoneTile: {fileID: 5044814526144528268, guid: 476946919e1d5104fb4c93f1dc2db5e9,
+    type: 3}
+  mountainTile: {fileID: 9154993657079601320, guid: 35b64c97ffd7b7e4caf04c0e621aec7b,
+    type: 3}
+  _buildingPrefabs:
+  - {fileID: 0}
   _selectedBuildingPrefabIndex: 0
-  _ResourcesInWarehouse_Fish: 0
-  _ResourcesInWarehouse_Wood: 0
-  _ResourcesInWarehouse_Planks: 0
-  _ResourcesInWarehouse_Wool: 0
-  _ResourcesInWarehouse_Clothes: 0
-  _ResourcesInWarehouse_Potato: 0
-  _ResourcesInWarehouse_Schnapps: 0
+  _ResourcesInWarehouse_Fish: 10
+  _ResourcesInWarehouse_Wood: 10
+  _ResourcesInWarehouse_Planks: 10
+  _ResourcesInWarehouse_Wool: 10
+  _ResourcesInWarehouse_Clothes: 10
+  _ResourcesInWarehouse_Potato: 10
+  _ResourcesInWarehouse_Schnapps: 10
 --- !u!4 &1768092942
 Transform:
   m_ObjectHideFlags: 0
@@ -468,3 +480,15 @@ Transform:
   m_Father: {fileID: 1589499994}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1768092943
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1768092940}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8ba193e0475c7499785ca2ef04a937d8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
