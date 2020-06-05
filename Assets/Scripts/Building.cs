@@ -23,7 +23,7 @@ public class Building : MonoBehaviour
     public bool efficiencyScales; //Choice it its efficiency scales with a specific type of surrounding tile
     public int minNeighbors = 0;
     public int maxNeighbors = 6;
-    public List<GameMaanager.ResourceTypes> inputResources; //Choice for input resource types (0,1,2)
+    public List<GameManager.ResourceTypes> inputResources; //Choice for input resource types (0,1,2)
     public GameManager.ResourceTypes outputResource;//Choice for output resource type
 
 
