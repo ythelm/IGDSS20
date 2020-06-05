@@ -122,6 +122,7 @@ public class GameManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        EconomyTick();
         HandleKeyboardInput();
         UpdateInspectorNumbersForResources();
 
@@ -129,6 +130,13 @@ public class GameManager : MonoBehaviour
     #endregion
 
     #region Methods
+
+    //Economy ticks
+    void EconomyTick()
+	{
+        //TBD ECONOMY TICK
+	}
+
     //Makes the resource dictionary usable by populating the values and keys
     void PopulateResourceDictionary()
     {
