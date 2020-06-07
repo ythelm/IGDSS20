@@ -233,14 +233,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c4fb070738f3544ea560ef08186d72d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _camera: {fileID: 512232609}
-  BoundsX:
-  - 1000
-  BoundsZ:
-  - 1000
-  ZoomBounds:
-  - 10
-  - 85
+  scrollSpeed: 100
+  panSpeed: 7
+  bounds:
+    m_Center: {x: 0, y: 0, z: 0}
+    m_Extent: {x: 0, y: 0, z: 0}
+  cam: {fileID: 512232609}
   gameManager: {fileID: 1768092941}
 --- !u!4 &834136087
 Transform:
@@ -441,27 +439,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dd580981bf7ab5845976a690fd1035a2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  heightMap: {fileID: 2800000, guid: 6c8b8b5dee9104b429f737ec1d927ec9, type: 3}
-  waterTile: {fileID: 2064574628029001573, guid: 2a914b6a4ef15cb4ca77257050f15f29,
-    type: 3}
-  sandTile: {fileID: 6461190606886679958, guid: ff7ef13f88a71c94eb42898019398dcd,
-    type: 3}
-  grassTile: {fileID: 5575372501429904281, guid: f549c24ecaa45cb498514352a3675d1c,
-    type: 3}
-  forestTile: {fileID: 3331960066271536643, guid: beaf3e6eeb231784387cb99da90a7c7d,
-    type: 3}
-  stoneTile: {fileID: 5044814526144528268, guid: 476946919e1d5104fb4c93f1dc2db5e9,
-    type: 3}
-  mountainTile: {fileID: 9154993657079601320, guid: 3e57bc60f66de426385520a5a32809b2,
-    type: 3}
+  heightMap: {fileID: 2800000, guid: 5c2448c2ffa208243962d18e173c7b21, type: 3}
+  _tilePrefabs:
+  - {fileID: 2064574628029001573, guid: 2a914b6a4ef15cb4ca77257050f15f29, type: 3}
+  - {fileID: 6461190606886679958, guid: ff7ef13f88a71c94eb42898019398dcd, type: 3}
+  - {fileID: 5575372501429904281, guid: f549c24ecaa45cb498514352a3675d1c, type: 3}
+  - {fileID: 3331960066271536643, guid: beaf3e6eeb231784387cb99da90a7c7d, type: 3}
+  - {fileID: 5044814526144528268, guid: 476946919e1d5104fb4c93f1dc2db5e9, type: 3}
+  - {fileID: 9154993657079601320, guid: 35b64c97ffd7b7e4caf04c0e621aec7b, type: 3}
   _buildingPrefabs:
-  - {fileID: 1424526405696502377, guid: 97161a4613375cd4baf749b53ad3b4f7, type: 3}
-  - {fileID: 7928269279142019111, guid: 433ba33e8d5275d418543cc8709cbe02, type: 3}
-  - {fileID: 6460319732534250535, guid: 6d6f7890b8e164baeb792a62f1566d55, type: 3}
-  - {fileID: 318283287415182579, guid: 8cbbf14a550bbee4aa7853b13a5566dd, type: 3}
-  - {fileID: 8669321371704317963, guid: f1d0002eab4d38948bf4efdf6993ac0f, type: 3}
-  - {fileID: 5719072535985938311, guid: 764755d1ac5e11c40af1ac0052c5130f, type: 3}
-  - {fileID: 8031321690098717850, guid: 408870bc0f70fb74d92c1fbbb7675e8c, type: 3}
+  - {fileID: 6461190606886679958, guid: 97161a4613375cd4baf749b53ad3b4f7, type: 3}
+  - {fileID: 5515976021463593564, guid: 307ec59b0352a0f4b9dee8da7249bd0f, type: 3}
+  - {fileID: 5575372501429904281, guid: f1d0002eab4d38948bf4efdf6993ac0f, type: 3}
+  - {fileID: 5575372501429904281, guid: 408870bc0f70fb74d92c1fbbb7675e8c, type: 3}
+  - {fileID: 5575372501429904281, guid: 433ba33e8d5275d418543cc8709cbe02, type: 3}
+  - {fileID: 5575372501429904281, guid: 8cbbf14a550bbee4aa7853b13a5566dd, type: 3}
+  - {fileID: 5044814526144528268, guid: 764755d1ac5e11c40af1ac0052c5130f, type: 3}
   _selectedBuildingPrefabIndex: 0
   _ResourcesInWarehouse_Fish: 0
   _ResourcesInWarehouse_Wood: 0
@@ -470,6 +463,8 @@ MonoBehaviour:
   _ResourcesInWarehouse_Clothes: 0
   _ResourcesInWarehouse_Potato: 0
   _ResourcesInWarehouse_Schnapps: 0
+  _money: 1000
+  _income: 100
 --- !u!4 &1768092942
 Transform:
   m_ObjectHideFlags: 0

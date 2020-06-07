@@ -32,15 +32,15 @@ public class Building : MonoBehaviour
     {
         this._tile = t;
         this._type = (BuildingType)index + 1; // increment by 1 since the first item in BuildingType is Empty 
+        this.possibleTileTypes = new List<Tile.TileTypes>();
 
         switch (this._type)
         {
             case BuildingType.Fishery:
-                this.costMoney = 0;
-                this.planksCost = 0;
+                this.costMoney = 100;
+                this.planksCost = 2;
                 this.upkeep = 40;
                 this.outputCount = 1;
-                this.efficiency = ComputeEfficiency();
                 this.scalesWithNeighboringTiles = true;
                 this.resourceGenerationInterval = 30f;
                 this.possibleTileTypes.Add(Tile.TileTypes.Sand);
@@ -48,13 +48,13 @@ public class Building : MonoBehaviour
                 this.maxNeighbors = 3;
                 this.inputResource = GameManager.ResourceTypes.None;
                 this.outputResource = GameManager.ResourceTypes.Fish;
+                this.efficiency = ComputeEfficiency();
                 break;
             case BuildingType.Lumberjack:
                 this.costMoney = 100;
                 this.planksCost = 0;
                 this.upkeep = 10;
                 this.outputCount = 1;
-                this.efficiency = ComputeEfficiency();
                 this.scalesWithNeighboringTiles = true;
                 this.resourceGenerationInterval = 15f;
                 this.possibleTileTypes.Add(Tile.TileTypes.Forest);
@@ -62,6 +62,7 @@ public class Building : MonoBehaviour
                 this.maxNeighbors = 6;
                 this.inputResource = GameManager.ResourceTypes.None;
                 this.outputResource = GameManager.ResourceTypes.Wood;
+                this.efficiency = ComputeEfficiency();
                 break;
             case BuildingType.Sawmill:
                 this.costMoney = 100;
@@ -82,7 +83,6 @@ public class Building : MonoBehaviour
                 this.planksCost = 2;
                 this.upkeep = 20;
                 this.outputCount = 1;
-                this.efficiency = ComputeEfficiency();
                 this.scalesWithNeighboringTiles = true;
                 this.resourceGenerationInterval = 30f;
                 this.possibleTileTypes.Add(Tile.TileTypes.Grass);
@@ -90,6 +90,7 @@ public class Building : MonoBehaviour
                 this.maxNeighbors = 4;
                 this.inputResource = GameManager.ResourceTypes.None;
                 this.outputResource = GameManager.ResourceTypes.Wood;
+                this.efficiency = ComputeEfficiency();
                 break;
             case BuildingType.FrameworkKnitters:
                 this.costMoney = 400;
@@ -110,7 +111,6 @@ public class Building : MonoBehaviour
                 this.planksCost = 2;
                 this.upkeep = 20;
                 this.outputCount = 1;
-                this.efficiency = ComputeEfficiency();
                 this.scalesWithNeighboringTiles = true;
                 this.resourceGenerationInterval = 30f;
                 this.possibleTileTypes.Add(Tile.TileTypes.Grass);
@@ -118,6 +118,7 @@ public class Building : MonoBehaviour
                 this.maxNeighbors = 4;
                 this.inputResource = GameManager.ResourceTypes.None;
                 this.outputResource = GameManager.ResourceTypes.Potato;
+                this.efficiency = ComputeEfficiency();
                 break;
             case BuildingType.SchnappsDistillery:
                 this.costMoney= 100;
