@@ -60,8 +60,8 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         PopulateResourceDictionary();
-         //StartCoroutine("TickEconomy");
-        // StartCoroutine("ProductionCycle");
+        //StartCoroutine("TickEconomy");
+        //StartCoroutine("ProductionCycle");
     }
 
     // Update is called once per frame
@@ -213,6 +213,9 @@ public class GameManager : MonoBehaviour
     //Forwards the tile to the method for spawning buildings
     public void TileClicked(int height, int width)
     {
+        Debug.Log("Tile click methode aufgerufen");
+        Debug.Log(_selectedBuildingPrefabIndex);
+        
         Tile t = _tileMap[height, width];
 
         PlaceBuildingOnTile(t);
@@ -222,22 +225,32 @@ public class GameManager : MonoBehaviour
     private void PlaceBuildingOnTile(Tile t)
     {
         //if there is building prefab for the number input
+
+        Debug.Log(_buildingPrefabs.Length);
+  
+
         if (_selectedBuildingPrefabIndex < _buildingPrefabs.Length)
         {
-            //TODO: check if building can be placed and then istantiate it
+
             GameObject selectedBuilding = _buildingPrefabs[_selectedBuildingPrefabIndex];
 
             Building b = selectedBuilding.GetComponent<Building>() as Building;
+
+            Debug.Log("costmoney" + b.costMoney);
+            Debug.Log("plank costs" +b.planksCost);
+            Debug.Log("tiletypescount" + b.possibleTileTypes.Count);
 
             if (t._building == null && b.possibleTileTypes.Contains(t._type) && _money >= b.costMoney && _ResourcesInWarehouse_Planks >= b.planksCost)
             {
                 GameObject building = Instantiate(selectedBuilding, t.gameObject.transform) as GameObject;
                 b.InitializeBuilding(_selectedBuildingPrefabIndex, t);
                 t._building = b;
-                // Update money and planks because of the placement
+                // Update money and planks for building placement
                 _money -= b.costMoney;
                 _resourcesInWarehouse[ResourceTypes.Planks] -= b.planksCost;
                 Debug.Log("Building is placed.");
+            }
+            else { Debug.Log("no money available");
             }
         }
     }

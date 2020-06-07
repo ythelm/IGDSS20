@@ -15,6 +15,7 @@ public class MouseManager : MonoBehaviour
     public float[] BoundsX = new float[2]; //Camera bounds on the X axis
     public float[] BoundsZ = new float[2]; //Camera bounds on the ZX axis
     public float[] ZoomBounds = new float[] { 10f, 85f }; //Zoom bounds on the Y axis
+    public GameManager gameManager;
 
 
     // Start is called before the first frame update
@@ -40,6 +41,10 @@ public class MouseManager : MonoBehaviour
 
             if (Physics.Raycast(ray, out hit, 1000f, layerMask))
             {
+                Tile t = hit.collider.gameObject.GetComponent<Tile>() as Tile;
+                Debug.Log("Tile type: " + t._type);
+                gameManager.TileClicked(t._coordinateHeight, t._coordinateWidth);
+
                 Debug.Log("You selected the " + hit.collider.name);
             }
         }

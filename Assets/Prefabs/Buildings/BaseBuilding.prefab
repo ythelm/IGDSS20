@@ -40,21 +40,20 @@ MonoBehaviour:
   m_GameObject: {fileID: 1117571041900513576}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 722b3d5446c2f5b4682bb1801e96d41c, type: 3}
+  m_Script: {fileID: 11500000, guid: 8ba193e0475c7499785ca2ef04a937d8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  type: 0
+  _type: 0
   upkeep: 0
-  buildCostMoney: 0
-  buildCostPlanks: 0
-  tile: {fileID: 0}
-  efficiency: 1
+  costMoney: 0
+  planksCost: 0
+  _tile: {fileID: 0}
+  efficiency: 0
   resourceGenerationInterval: 0
-  resourceGenerationProgress: 0
   outputCount: 0
-  canBeBuiltOnTileTypes: 
-  efficiencyScalesWithNeighboringTiles: 0
-  minimumNeighbors: 0
-  maximumNeighbors: 0
-  inputResources: 
+  possibleTileTypes: 
+  scalesWithNeighboringTiles: 0
+  minNeighbors: 0
+  maxNeighbors: 6
+  inputResource: 0
   outputResource: 0

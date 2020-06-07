@@ -36,8 +36,8 @@ public class Building : MonoBehaviour
         switch (this._type)
         {
             case BuildingType.Fishery:
-                this.costMoney = 100;
-                this.planksCost = 2;
+                this.costMoney = 0;
+                this.planksCost = 0;
                 this.upkeep = 40;
                 this.outputCount = 1;
                 this.efficiency = ComputeEfficiency();
