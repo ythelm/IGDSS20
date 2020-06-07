@@ -203,13 +203,19 @@ public class GameManager : MonoBehaviour
     {
         //if there is building prefab for the number input
 
+        Debug.Log(_selectedBuildingPrefabIndex);
+        Debug.Log(_buildingPrefabs.Length);
+
         if (_selectedBuildingPrefabIndex < _buildingPrefabs.Length)
         {
             GameObject selectedBuilding = _buildingPrefabs[_selectedBuildingPrefabIndex];
 
             Building b = gameObject.AddComponent<Building>();
             b.InitializeBuilding(_selectedBuildingPrefabIndex, t);
+            Debug.Log("Building is placed.");
 
+            Debug.Log(t._building);
+            
             if (t._building == null && b.possibleTileTypes.Contains(t._type) && _money >= b.costMoney && _ResourcesInWarehouse_Planks >= b.planksCost)
             {
                 GameObject building = Instantiate(selectedBuilding, t.gameObject.transform) as GameObject;
