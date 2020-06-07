@@ -121,6 +121,36 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &283224637
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 283224638}
+  m_Layer: 8
+  m_Name: Tiles
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &283224638
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 283224637}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &512232607
 GameObject:
   m_ObjectHideFlags: 0
@@ -234,7 +264,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   scrollSpeed: 100
-  panSpeed: 7
+  panSpeed: 10
   bounds:
     m_Center: {x: 0, y: 0, z: 0}
     m_Extent: {x: 0, y: 0, z: 0}
@@ -376,7 +406,7 @@ Transform:
   - {fileID: 512232610}
   - {fileID: 860444141}
   m_Father: {fileID: 0}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1589499993
 GameObject:
@@ -408,7 +438,7 @@ Transform:
   - {fileID: 1768092942}
   - {fileID: 834136087}
   m_Father: {fileID: 0}
-  m_RootOrder: 1
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1768092940
 GameObject:
@@ -439,7 +469,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dd580981bf7ab5845976a690fd1035a2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  heightMap: {fileID: 2800000, guid: 5c2448c2ffa208243962d18e173c7b21, type: 3}
+  heightMap: {fileID: 2800000, guid: 6c8b8b5dee9104b429f737ec1d927ec9, type: 3}
   _tilePrefabs:
   - {fileID: 2064574628029001573, guid: 2a914b6a4ef15cb4ca77257050f15f29, type: 3}
   - {fileID: 6461190606886679958, guid: ff7ef13f88a71c94eb42898019398dcd, type: 3}
@@ -455,15 +485,15 @@ MonoBehaviour:
   - {fileID: 5575372501429904281, guid: 433ba33e8d5275d418543cc8709cbe02, type: 3}
   - {fileID: 5575372501429904281, guid: 8cbbf14a550bbee4aa7853b13a5566dd, type: 3}
   - {fileID: 5044814526144528268, guid: 764755d1ac5e11c40af1ac0052c5130f, type: 3}
-  _selectedBuildingPrefabIndex: 0
-  _ResourcesInWarehouse_Fish: 0
-  _ResourcesInWarehouse_Wood: 0
-  _ResourcesInWarehouse_Planks: 0
-  _ResourcesInWarehouse_Wool: 0
-  _ResourcesInWarehouse_Clothes: 0
-  _ResourcesInWarehouse_Potato: 0
-  _ResourcesInWarehouse_Schnapps: 0
-  _money: 1000
+  _selectedBuildingPrefabIndex: 1
+  _ResourcesInWarehouse_Fish: 11
+  _ResourcesInWarehouse_Wood: 1
+  _ResourcesInWarehouse_Planks: 2
+  _ResourcesInWarehouse_Wool: 2
+  _ResourcesInWarehouse_Clothes: 2
+  _ResourcesInWarehouse_Potato: 2
+  _ResourcesInWarehouse_Schnapps: 2
+  _money: 2000
   _income: 100
 --- !u!4 &1768092942
 Transform:

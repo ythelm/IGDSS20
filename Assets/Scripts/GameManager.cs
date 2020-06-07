@@ -8,8 +8,7 @@ public class GameManager : MonoBehaviour
     #region Map generation
     public Texture2D heightMap;
     private int dim;
-    // public GameObject waterTile, sandTile, grassTile, forestTile, stoneTile, mountainTile; // initiate tile prefabs
-    public GameObject[] _tilePrefabs;
+    public GameObject[] _tilePrefabs; //reference to the tile prefabs
     private Tile[,] _tileMap; //2D array of all spawned tiles
     #endregion
 
@@ -44,9 +43,9 @@ public class GameManager : MonoBehaviour
     #endregion
 
     #region Enconomy
-    public int _money; // initial money
+    public int _money; // money
     public int _income = 100; // constant income per economy tick
-    private float _economyTickInterval = 60f;
+    private float _economyTickInterval = 60f; //interval of 60 seconds
     #endregion
 
     #region MonoBehaviour
@@ -61,8 +60,7 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         PopulateResourceDictionary();
-        StartCoroutine("EconomyTicker");
-        //StartCoroutine("ProductionCycle");
+        StartCoroutine("EconomyTicker"); 
     }
 
     // Update is called once per frame
@@ -82,9 +80,8 @@ public class GameManager : MonoBehaviour
             {
                 float height = heightMap.GetPixel(i, j).r;
 
-                // We need bias to arrange hexagons over X axis
+                // arrange the hexagons on the x axis and spawn the tiles
                 int bias = i % 2 == 0 ? 0 : 5;
-                // Spawn tiles (8.66 IS MAGIC NUM HERE)
                 float magicNum = 8.66f;
                 int typeIndex;
                 if (height == 0f) typeIndex = 0;
@@ -103,11 +100,9 @@ public class GameManager : MonoBehaviour
                 t._type = (Tile.TileTypes)typeIndex + 1; // increment typeIndex by 1 since the first item is Empty in TileTypes
                 t._coordinateHeight = i;
                 t._coordinateWidth = j;
-                //t._neighborTiles = FindNeighborsOfTile(t);
-                // Save Tile object to tilemap
                 _tileMap[i, j] = t;
             }
-        // Now find neighbours for all tiles
+        //find neighbours for all tiles
         foreach (Tile t in _tileMap)
             t._neighborTiles = FindNeighborsOfTile(t);
     }
@@ -201,8 +196,7 @@ public class GameManager : MonoBehaviour
     //Checks if the currently selected building type can be placed on the given tile and then instantiates an instance of the prefab
     private void PlaceBuildingOnTile(Tile t)
     {
-        //if there is building prefab for the number input
-
+        //checks if there is building prefab for the number input
         Debug.Log(_selectedBuildingPrefabIndex);
         Debug.Log(_buildingPrefabs.Length);
 
