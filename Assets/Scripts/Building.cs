@@ -4,173 +4,139 @@ using UnityEngine;
 
 public class Building : MonoBehaviour
 {
-    
-    public BuildingType _type; //the name of the building
-    public int upkeep;   //the money cost per minute
-    public int costMoney; //placement money cost
-    public int planksCost; //placement planks cost ;
-    public Tile _tile; // Reference to the tile it is built on 
+    #region Basic Attributes
+    public string _type; //The name of the building
+    public float _upkeep; //The money cost per minute
+    public float _buildCostMoney; //placement money cost
+    public float _buildCostPlanks; //placement planks cost
+    public Tile _tile; //Reference to the tile it is built on
+    private List<Tile> _neighborTiles; //List of all neighboring tiles, derived from _tile
+    #endregion
 
-    public float efficiency; //calculated based on the surrounding tile types
-    public float resourceGenerationInterval; //If operating at 100% efficiency, this is the time in seconds it takes for one production cycle to finish
-    public float outputCount; // the number of output resources per generation cycle
+    #region Tile Restrictions
+    public List<Tile.TileTypes> _canBeBuiltOnTileTypes; //A list that defines all types of tiles it can be placed on. Increase the number in the inspector and then choose from the drop-down menu
+    public Tile.TileTypes _efficiencyScalesWithNeighboringTiles; //Choose if this building should scale with the number of surrounding tiles of a specific type
+    [Range(0, 6)]
+    public int _minimumNeighbors; //The minimum number of surrounding tiles of the specified type required for the building to start working
+    [Range(0, 6)]
+    public int _maximumNeighbors; //The maximum number of surrounding tiles of the specified type this building can scale with. For example, if the maximum is defined as (4) and there are (3) empty tiles of the specified type, the efficiency will be 75%
+    #endregion
 
-   
-    public List<Tile.TileTypes> possibleTileTypes; //restriction on which types of tiles it can be placed on
-    public bool scalesWithNeighboringTiles; // A choice if its efficiency scales with a specific type of surrounding tile
-    public int minNeighbors = 0; //the minimum number of neighbours
-    public int maxNeighbors = 6; //the maximum number of neighbours
-    public GameManager.ResourceTypes inputResource; //Choice for input resource types (0,1,2)
-    public GameManager.ResourceTypes outputResource;//Choice for output resource type
+    #region Resource Generation
+    public GameManager.ResourceTypes _inputResource1; //A drop-down in the inspector that declares if this building takes material to generate its output. Optional
+    public GameManager.ResourceTypes _inputResource2; //A drop-down in the inspector that declares if this building takes a second material to generate its output. Optional
+    public GameManager.ResourceTypes _outputResource; //A drop-down in the inspector that declares the output material
 
-    #region Enumerations
-    public enum BuildingType { Empty, Fishery, Lumberjack, Sawmill, SheepFarm, FrameworkKnitters, PotatoFarm, SchnappsDistillery };
+    public float _resourceGenerationInterval = 30; //If operating at 100% efficiency, this is the time in seconds it takes for one production cycle to finish
+    private float _generationProgress; //The counter that needs to be incrementally increased during a production cycle
+
+    public float _outputCount = 1; //The number of output materials produced in one production cycle
+
+    public bool _hasInputResource1; //Signals that material 1 has been deliverd to this building
+    public bool _hasInputResource2; //Signals that material 2 has been deliverd to this building
+    public float _progressPercent; //The _generationProgress on a scale from 0 to 100 %. Only for display.
+    public float _efficiency; //The calculated efficiency value, based on the _efficiencyScalesWithNeighboringTiles parameter.
     #endregion
 
 
-    public void InitializeBuilding(int index, Tile t)
+    #region MonoBehaviour
+    // Start is called before the first frame update
+    void Start()
     {
-        this._tile = t;
-        this._type = (BuildingType)index + 1; // increment by 1 since the first item in BuildingType is empty 
-        this.possibleTileTypes = new List<Tile.TileTypes>();
-
-        switch (this._type)
-        {
-            case BuildingType.Fishery:
-                this.costMoney = 100;
-                this.planksCost = 2;
-                this.upkeep = 40;
-                this.outputCount = 1;
-                this.scalesWithNeighboringTiles = true;
-                this.resourceGenerationInterval = 30f;
-                this.possibleTileTypes.Add(Tile.TileTypes.Sand);
-                this.minNeighbors = 1;
-                this.maxNeighbors = 3;
-                this.inputResource = GameManager.ResourceTypes.None;
-                this.outputResource = GameManager.ResourceTypes.Fish;
-                this.efficiency = ComputeEfficiency();
-                break;
-            case BuildingType.Lumberjack:
-                this.costMoney = 100;
-                this.planksCost = 0;
-                this.upkeep = 10;
-                this.outputCount = 1;
-                this.scalesWithNeighboringTiles = true;
-                this.resourceGenerationInterval = 15f;
-                this.possibleTileTypes.Add(Tile.TileTypes.Forest);
-                this.minNeighbors = 1;
-                this.maxNeighbors = 6;
-                this.inputResource = GameManager.ResourceTypes.None;
-                this.outputResource = GameManager.ResourceTypes.Wood;
-                this.efficiency = ComputeEfficiency();
-                break;
-            case BuildingType.Sawmill:
-                this.costMoney = 100;
-                this.planksCost = 0;
-                this.upkeep = 10;
-                this.outputCount = 2;
-                this.efficiency = 1f;
-                this.scalesWithNeighboringTiles = false;
-                this.resourceGenerationInterval = 15f;
-                this.possibleTileTypes.Add(Tile.TileTypes.Grass);
-                this.possibleTileTypes.Add(Tile.TileTypes.Forest);
-                this.possibleTileTypes.Add(Tile.TileTypes.Stone);
-                this.inputResource = GameManager.ResourceTypes.Wood;
-                this.outputResource = GameManager.ResourceTypes.Planks;
-                break;
-            case BuildingType.SheepFarm:
-                this.costMoney = 100;
-                this.planksCost = 2;
-                this.upkeep = 20;
-                this.outputCount = 1;
-                this.scalesWithNeighboringTiles = true;
-                this.resourceGenerationInterval = 30f;
-                this.possibleTileTypes.Add(Tile.TileTypes.Grass);
-                this.minNeighbors = 1;
-                this.maxNeighbors = 4;
-                this.inputResource = GameManager.ResourceTypes.None;
-                this.outputResource = GameManager.ResourceTypes.Wood;
-                this.efficiency = ComputeEfficiency();
-                break;
-            case BuildingType.FrameworkKnitters:
-                this.costMoney = 400;
-                this.planksCost = 20;
-                this.upkeep = 50;
-                this.outputCount = 1;
-                this.efficiency = 1f;
-                this.scalesWithNeighboringTiles = false;
-                this.resourceGenerationInterval = 30f;
-                this.possibleTileTypes.Add(Tile.TileTypes.Grass);
-                this.possibleTileTypes.Add(Tile.TileTypes.Forest);
-                this.possibleTileTypes.Add(Tile.TileTypes.Stone);
-                this.inputResource = GameManager.ResourceTypes.Wood;
-                this.outputResource = GameManager.ResourceTypes.Clothes;
-                break;
-            case BuildingType.PotatoFarm:
-                this.costMoney = 100;
-                this.planksCost = 2;
-                this.upkeep = 20;
-                this.outputCount = 1;
-                this.scalesWithNeighboringTiles = true;
-                this.resourceGenerationInterval = 30f;
-                this.possibleTileTypes.Add(Tile.TileTypes.Grass);
-                this.minNeighbors = 1;
-                this.maxNeighbors = 4;
-                this.inputResource = GameManager.ResourceTypes.None;
-                this.outputResource = GameManager.ResourceTypes.Potato;
-                this.efficiency = ComputeEfficiency();
-                break;
-            case BuildingType.SchnappsDistillery:
-                this.costMoney= 100;
-                this.planksCost = 2;
-                this.upkeep = 40;
-                this.outputCount = 1;
-                this.efficiency = 1f;
-                this.scalesWithNeighboringTiles = false;
-                this.resourceGenerationInterval = 30f;
-                this.possibleTileTypes.Add(Tile.TileTypes.Grass);
-                this.possibleTileTypes.Add(Tile.TileTypes.Forest);
-                this.possibleTileTypes.Add(Tile.TileTypes.Stone);
-                this.inputResource = GameManager.ResourceTypes.Potato;
-                this.outputResource = GameManager.ResourceTypes.Schnapps;
-                break;
-        }
+        _neighborTiles = _tile._neighborTiles;
     }
-    float ComputeEfficiency()
+
+    // Update is called once per frame
+    void Update()
     {
-        if (this.scalesWithNeighboringTiles)
+        UpdateEfficiency();
+        HandleResourceGeneration();
+    }
+    #endregion
+
+    #region Methods
+    void UpdateEfficiency()
+    {
+        _neighborTiles = _tile._neighborTiles;
+
+        //If the building scales with neighboring tiles
+        if (_minimumNeighbors > 0)
         {
-            Tile.TileTypes tt = Tile.TileTypes.Empty;
-            switch (this._type)
+            //list all neighboring tiles that have the correct type and no building
+            List<Tile> fittingNeighbors = _neighborTiles.FindAll(s => (s._type == _efficiencyScalesWithNeighboringTiles && s._building == null));
+            int count = fittingNeighbors.Count;
+
+            float efficiencySteps = 100f / _maximumNeighbors;
+            _efficiency = count * efficiencySteps;
+
+            if (_efficiency > 100)
             {
-                case BuildingType.Fishery:
-                    tt = Tile.TileTypes.Water;
-                    break;
-                case BuildingType.Lumberjack:
-                    tt = Tile.TileTypes.Forest;
-                    break;
-                case BuildingType.SheepFarm:
-                case BuildingType.PotatoFarm:
-                    tt = Tile.TileTypes.Grass;
-                    break;
+                _efficiency = 100;
             }
-            int surroundingTiles = this._tile._neighborTiles.FindAll(t => t._type == tt).Count; ;
-            if (this.maxNeighbors <= surroundingTiles) return 1f;
-            if (this.minNeighbors > surroundingTiles) return 0f;
-            return surroundingTiles / this.maxNeighbors;
+
+            if (count < _minimumNeighbors)
+            {
+                _efficiency = 0;
+            }
         }
-        return 1f;
+        else
+        {
+            _efficiency = 100;
+        }
+
     }
 
-
-    public void UpdateEfficiency()
+    void HandleResourceGeneration()
     {
-        this.efficiency = ComputeEfficiency();
+        //If something is produced here
+        if (_outputResource != GameManager.ResourceTypes.None)
+        {
+            //Collect material 1
+            if (!_hasInputResource1)
+            {
+                if (_inputResource1 != GameManager.ResourceTypes.None && GameManager.Instance.HasResourceInWarehoues(_inputResource1))
+                {
+                    GameManager.Instance.RemoveResourceFromWarehouse(_inputResource1, 1);
+                    _hasInputResource1 = true;
+                }
+            }
+            //Collect material 2
+            if (!_hasInputResource2)
+            {
+                if (_inputResource1 != GameManager.ResourceTypes.None && GameManager.Instance.HasResourceInWarehoues(_inputResource2))
+                {
+                    GameManager.Instance.RemoveResourceFromWarehouse(_inputResource2, 1);
+                    _hasInputResource2 = true;
+                }
+            }
+
+            //If no material is required for production
+            if (_inputResource1 == GameManager.ResourceTypes.None)
+            {
+                _hasInputResource1 = true;
+            }
+            if (_inputResource2 == GameManager.ResourceTypes.None)
+            {
+                _hasInputResource2 = true;
+            }
+
+            //Only produce something if all required materials are available
+            if (_hasInputResource1 && _hasInputResource2)
+            {
+
+                _generationProgress += Time.deltaTime * (_efficiency / 100f);
+                _progressPercent = (int)(_generationProgress / _resourceGenerationInterval * 100);
+
+                //If a production cycle is finished
+                if (_generationProgress > _resourceGenerationInterval)
+                {
+                    _generationProgress = 0;
+                    GameManager.Instance.AddResourceToWarehouse(_outputResource, _outputCount);
+                    _hasInputResource1 = false;
+                    _hasInputResource2 = false;
+                }
+            }
+        }
     }
-
-
-   
+    #endregion
 }
-
-
-
