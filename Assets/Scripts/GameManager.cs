@@ -33,24 +33,24 @@ public class GameManager : MonoBehaviour
     #region Resources
     public int _population; //Number of people available. Currently only one tier of workers
     public int _maximumResourceCountInWarehouse = 100; //How much of each resource can be stored in the global warehouse
-    private Dictionary<ResourceTypes, float> _resourcesInWarehouse = new Dictionary<ResourceTypes, float>(); //Holds a number of stored resources for every ResourceType
+    public Dictionary<ResourceTypes, float> _resourcesInWarehouse = new Dictionary<ResourceTypes, float>(); //Holds a number of stored resources for every ResourceType
 
 
     //A representation of _resourcesInWarehouse, broken into individual floats. Only for display in inspector, will be removed and replaced with UI later
     [SerializeField]
-    private float _ResourcesInWarehouse_Fish;
+    public float _ResourcesInWarehouse_Fish;
     [SerializeField]
-    private float _ResourcesInWarehouse_Wood;
+    public float _ResourcesInWarehouse_Wood;
     [SerializeField]
-    private float _ResourcesInWarehouse_Planks;
+    public float _ResourcesInWarehouse_Planks;
     [SerializeField]
-    private float _ResourcesInWarehouse_Wool;
+    public float _ResourcesInWarehouse_Wool;
     [SerializeField]
-    private float _ResourcesInWarehouse_Clothes;
+    public float _ResourcesInWarehouse_Clothes;
     [SerializeField]
-    private float _ResourcesInWarehouse_Potato;
+    public float _ResourcesInWarehouse_Potato;
     [SerializeField]
-    private float _ResourcesInWarehouse_Schnapps;
+    public float _ResourcesInWarehouse_Schnapps;
     #endregion
 
     #region Enumerations
@@ -59,7 +59,7 @@ public class GameManager : MonoBehaviour
 
     #region MonoBehaviour
     //Awake is called when creating this object
-    private void Awake()
+    public void Awake()
     {
         if (Instance)
         {
@@ -238,7 +238,7 @@ public class GameManager : MonoBehaviour
     }
 
     //Returns a list of all neighbors of a given tile
-    private List<Tile> FindNeighborsOfTile(Tile t)
+    public List<Tile> FindNeighborsOfTile(Tile t)
     {
         List<Tile> result = new List<Tile>();
 
@@ -328,7 +328,7 @@ public class GameManager : MonoBehaviour
     }
 
     //Checks if the currently selected building type can be placed on the given tile and then instantiates an instance of the prefab
-    private void PlaceBuildingOnTile(Tile t)
+    public void PlaceBuildingOnTile(Tile t)
     {
         //if there is a selected building prefab
         if (_selectedBuildingPrefabIndex < _buildingPrefabs.Length)

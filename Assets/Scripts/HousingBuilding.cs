@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class Building : MonoBehaviour
+public abstract class HousingBuilding : MonoBehaviour
 {
     public int _upkeep; // money cost per minute
     public int _build_cost_money; // placement money cost

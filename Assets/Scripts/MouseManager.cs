@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -6,15 +6,15 @@ public class MouseManager : MonoBehaviour
 {
     #region Manager References
     public static MouseManager Instance; //Singleton of this manager. Can be called with static reference MouseManager.Instance
-    private GameManager _gameManager; //Reference to GameManager.Instance
+    public GameManager _gameManager; //Reference to GameManager.Instance
     #endregion
 
     #region Camera
     public Camera _camera; //The camera object
-    private Vector3 _lastPanPosition; //The position of the mouse when the dragging begins
+    public Vector3 _lastPanPosition; //The position of the mouse when the dragging begins
 
-    private float PanSpeed = 200f; //Movement speed multiplier of the camera translation
-    private float ZoomSpeedMouse = 50f; //Multiplier for zoom factor
+    public float PanSpeed = 200f; //Movement speed multiplier of the camera translation
+    public float ZoomSpeedMouse = 50f; //Multiplier for zoom factor
 
     public float[] BoundsX = new float[2]; //Camera bounds on the X axis
     public float[] BoundsZ = new float[2]; //Camera bounds on the Z axis
@@ -23,7 +23,7 @@ public class MouseManager : MonoBehaviour
 
     #region MonoBehaviour
     //Awake is called when creating this object
-    private void Awake()
+    public void Awake()
     {
         if (Instance)
         {
