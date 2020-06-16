@@ -5,8 +5,8 @@ using UnityEngine;
 public abstract class Building : MonoBehaviour
 {
     public int _upkeep; // money cost per minute
-    public int _build_cost_money; // placement money cost
-    public int _build_cost_planks; // placement planks cost
+    public int _buildCostMoney; // placement money cost
+    public int _buildCostPlanks; // placement planks cost
     public Tile _tile; // tile the building is built on
 
     public bool water_can_be_built_on;
@@ -25,7 +25,7 @@ public abstract class Building : MonoBehaviour
         gameManager = GameObject.Find("GameManager");
     }
 
-    public bool CanBeBuiltOn(Tile.TileTypes tile)
+    public bool canBeBuiltOn(Tile.TileTypes tile)
     {
         if (tile == Tile.TileTypes.Water)
         {

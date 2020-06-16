@@ -16,5 +16,18 @@ public class Tile : MonoBehaviour
     public enum TileTypes { Empty, Water, Sand, Grass, Forest, Stone, Mountain }; //Enumeration of all available tile types. Can be addressed from other scripts by calling Tile.Tiletypes
     #endregion
 
+    public int GetNeigborTileCount(TileTypes type)
+    {
+        int count = 0;
+        foreach (Tile t in _neighborTiles)
+        {
+            if (t._type == type)
+            {
+                count++;
+            }
+        }
+        return count;
+    }
+
     //This class acts as a data container and has no functionality
 }

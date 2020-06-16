@@ -1,97 +1,155 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
+using UnityEditor;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
+
     #region Manager References
     public static GameManager Instance; //Singleton of this manager. Can be called with static reference GameManager.Instance
     private MouseManager _mouseManager; //Reference to MouseManager.Instance
     #endregion
 
+    public float economyWaitTime = 60.0f;
+    private float timer = 0.0f;
     #region Map generation
-    public Texture2D _heightMap; //Reference to the height map texture file
-    public GameObject[] _tilePrefabs; //References to the tile prefabs
-    public Transform _tileParentObject; //Reference to the parent object in the hierarchy for all spawned tiles
     private Tile[,] _tileMap; //2D array of all spawned tiles
-    private float _heightFactor = 50; //Multiplier for placement of tiles on the Y-axis
     #endregion
 
     #region Buildings
-    public GameObject[] _buildingPrefabs; //References to the building prefabs
+    public GameObject fishery, lumberjack, sheepfarm, frameworkknitters, potatofarm, schnappsdistillery, sawmill;
+    public List<GameObject> _buildingPrefabs; //References to the building prefabs
     public int _selectedBuildingPrefabIndex = 0; //The current index used for choosing a prefab to spawn from the _buildingPrefabs list
-    private List<Building> _buildings; //List of all currently spawned buildings. Used for upkeep in economy ticks
+    private List<Building> _buildings = new List<Building>();
     #endregion
 
-    #region Economy
-    private float _economyTickRate = 60; //Every X seconds the economy will tick
-    private float _economyTimer; //The current progress within an economy tick cycle
-    public float _money = 50000; //The currently available money
-    private float _IncomePerPerson = 1; //Each person of the population pays taxes in every economy tick. This amount will be decided by population happiness.
-    #endregion
 
     #region Resources
-    public int _population; //Number of people available. Currently only one tier of workers
-    public int _maximumResourceCountInWarehouse = 100; //How much of each resource can be stored in the global warehouse
+    public int money;
     public Dictionary<ResourceTypes, float> _resourcesInWarehouse = new Dictionary<ResourceTypes, float>(); //Holds a number of stored resources for every ResourceType
-
 
     //A representation of _resourcesInWarehouse, broken into individual floats. Only for display in inspector, will be removed and replaced with UI later
     [SerializeField]
-    public float _ResourcesInWarehouse_Fish;
+    private float _ResourcesInWarehouse_Fish;
     [SerializeField]
-    public float _ResourcesInWarehouse_Wood;
+    private float _ResourcesInWarehouse_Wood;
     [SerializeField]
-    public float _ResourcesInWarehouse_Planks;
+    private float _ResourcesInWarehouse_Planks;
     [SerializeField]
-    public float _ResourcesInWarehouse_Wool;
+    private float _ResourcesInWarehouse_Wool;
     [SerializeField]
-    public float _ResourcesInWarehouse_Clothes;
+    private float _ResourcesInWarehouse_Clothes;
     [SerializeField]
-    public float _ResourcesInWarehouse_Potato;
+    private float _ResourcesInWarehouse_Potato;
     [SerializeField]
-    public float _ResourcesInWarehouse_Schnapps;
+    private float _ResourcesInWarehouse_Schnapps;
     #endregion
 
     #region Enumerations
     public enum ResourceTypes { None, Fish, Wood, Planks, Wool, Clothes, Potato, Schnapps }; //Enumeration of all available resource types. Can be addressed from other scripts by calling GameManager.ResourceTypes
     #endregion
 
-    #region MonoBehaviour
-    //Awake is called when creating this object
-    public void Awake()
-    {
-        if (Instance)
-        {
-            Destroy(this.gameObject);
-        }
-        else
-        {
-            Instance = this;
-        }
-    }
 
+    public GameObject water_tile, sand_tile, mountain_tile, forest_tile, grass_tile, stone_tile;
+
+
+
+    public float _heightFactor = 20f;
     // Start is called before the first frame update
+
+    float x_step = 17.321f;
+    float y_step = 5f;
+    float line_offset = 8.661f;
+    Texture2D _heightMap;
     void Start()
     {
-        GenerateMap();
+        _heightMap = Resources.Load("Heightmap_16", typeof(Texture2D)) as Texture2D; //Resources.Load("Assets/Textures/Heightmap_16") as Texture2D;
+        //Texture2D heightmap = (Texture2D)Resources.LoadAssetAtPath("Assets/Textures/Heightmap_16", typeof(Texture2D));
+        int x, y;
+        _buildingPrefabs.Add(fishery);
+        _buildingPrefabs.Add(lumberjack);
+        _buildingPrefabs.Add(sheepfarm);
+        _buildingPrefabs.Add(frameworkknitters);
+        _buildingPrefabs.Add(potatofarm);
+        _buildingPrefabs.Add(schnappsdistillery);
+        _buildingPrefabs.Add(sawmill);
+
+
         _mouseManager = MouseManager.Instance;
         _mouseManager.InitializeBounds(0, _heightMap.width * 10, 0, _heightMap.height * 8.66f);
-        _buildings = new List<Building>();
+       
         PopulateResourceDictionary();
+
+        _tileMap = new Tile[_heightMap.width, _heightMap.height];
+        // Loop through the images pixels to reset color.
+        for (x = 0; x < _heightMap.width; x++)
+        {
+            for (y = 0; y < _heightMap.height; y++)
+            {
+                Color pixelColor = _heightMap.GetPixel(x, y);
+                Vector3 pos = new Vector3(y % 2 * line_offset + x * x_step, pixelColor.b * _heightFactor, y * y_step);
+                GameObject go;
+                if (pixelColor.b < 0.01)
+                {
+
+                    go = Instantiate(water_tile, pos, Quaternion.identity);
+                }
+                else if (pixelColor.b < 0.2)
+                {
+                    go = Instantiate(sand_tile, pos, Quaternion.identity);
+                }
+                else if (pixelColor.b < 0.4)
+                {
+                    go = Instantiate(grass_tile, pos, Quaternion.identity);
+                }
+                else if (pixelColor.b < 0.6)
+                {
+                    go = Instantiate(forest_tile, pos, Quaternion.identity);
+                }
+                else if (pixelColor.b < 0.8)
+                {
+                    go = Instantiate(stone_tile, pos, Quaternion.identity);
+                }
+                else
+                {
+                    go = Instantiate(mountain_tile, pos, Quaternion.identity);
+                }
+
+                _tileMap[x, y] = go.GetComponent<Tile>() as Tile;
+                _tileMap[x, y]._coordinateWidth = x;
+                _tileMap[x, y]._coordinateHeight = y;
+            }
+        }
+
+        for (x = 0; x < _heightMap.width; x++)
+        {
+            for (y = 0; y < _heightMap.height; y++)
+            {
+                _tileMap[x, y]._neighborTiles = FindNeighborsOfTile(_tileMap[x, y]);
+            }
+        }
     }
 
+    #region MonoBehaviour
     // Update is called once per frame
     void Update()
     {
         HandleKeyboardInput();
-        UpdateEconomyTimer();
         UpdateInspectorNumbersForResources();
+        timer += Time.deltaTime;
+
+        if (timer > economyWaitTime)
+        {
+            EconomyCycle();
+            timer = timer - economyWaitTime;
+        }
     }
     #endregion
 
     #region Methods
-    //Makes the resource dictionary usable by populating the values and keys
+    //Makes the resource dictuionary usable by populating the values and keys
     void PopulateResourceDictionary()
     {
         _resourcesInWarehouse.Add(ResourceTypes.None, 0);
@@ -102,18 +160,6 @@ public class GameManager : MonoBehaviour
         _resourcesInWarehouse.Add(ResourceTypes.Clothes, 0);
         _resourcesInWarehouse.Add(ResourceTypes.Potato, 0);
         _resourcesInWarehouse.Add(ResourceTypes.Schnapps, 0);
-    }
-
-    //Handles the progression within an economy cycle
-    void UpdateEconomyTimer()
-    {
-        _economyTimer += Time.deltaTime;
-
-        if (_economyTimer > _economyTickRate)
-        {
-            _economyTimer = 0;
-            TickEconomy();
-        }
     }
 
     //Sets the index for the currently selected building prefab by checking key presses on the numbers 1 to 0
@@ -173,214 +219,125 @@ public class GameManager : MonoBehaviour
         _ResourcesInWarehouse_Schnapps = _resourcesInWarehouse[ResourceTypes.Schnapps];
     }
 
-    //Instantiates individual hexagonal tile prefabs
-    void GenerateMap()
+    //Checks if there is at least one material for the queried resource type in the warehouse
+    public bool HasResourceInWarehoues(ResourceTypes resource)
     {
-        _tileMap = new Tile[_heightMap.height, _heightMap.width];
-
-        //Spawn tiles on grid
-        for (int h = 0; h < _heightMap.height; h++)
-        {
-            for (int w = 0; w < _heightMap.width; w++)
-            {
-
-                Color c = _heightMap.GetPixel(w, h);
-                float max = c.maxColorComponent;
-                float tileHeight = _heightFactor * max;
-
-                //Determine tile type
-                GameObject selectedPrefab;
-
-                if (max == 0.0f)
-                {
-                    selectedPrefab = _tilePrefabs[0];
-                }
-                else if (max < 0.2f)
-                {
-                    selectedPrefab = _tilePrefabs[1];
-                }
-                else if (max < 0.4f)
-                {
-                    selectedPrefab = _tilePrefabs[2];
-                }
-                else if (max < 0.6f)
-                {
-                    selectedPrefab = _tilePrefabs[3];
-                }
-                else if (max < 0.8f)
-                {
-                    selectedPrefab = _tilePrefabs[4];
-                }
-                else
-                {
-                    selectedPrefab = _tilePrefabs[5];
-                }
-
-                GameObject go = Instantiate(selectedPrefab, _tileParentObject);
-                go.transform.position = new Vector3(h * 8.66f, tileHeight, w * 10f + (h % 2 == 0 ? 0f : 5f));
-                Tile t = go.GetComponent<Tile>();
-                t._coordinateHeight = h;
-                t._coordinateWidth = w;
-                _tileMap[h, w] = t;
-            }
-        }
-
-        //Populate list of neighbors
-        for (int h = 0; h < _tileMap.GetLength(0); h++)
-        {
-            for (int w = 0; w < _tileMap.GetLength(1); w++)
-            {
-                Tile t = _tileMap[h, w];
-                t._neighborTiles = FindNeighborsOfTile(t);
-
-            }
-        }
-    }
-
-    //Returns a list of all neighbors of a given tile
-    public List<Tile> FindNeighborsOfTile(Tile t)
-    {
-        List<Tile> result = new List<Tile>();
-
-        int height = t._coordinateHeight;
-        int width = t._coordinateWidth;
-
-        //top, top-left, left, right, bottom, bottom-left
-        //Check edge cases
-        //top
-        if (height > 0)
-        {
-            result.Add(_tileMap[height - 1, width]);
-        }
-        //bottom
-        if (height < _heightMap.height - 1)
-        {
-            result.Add(_tileMap[height + 1, width]);
-        }
-        //left
-        if (width > 0)
-        {
-            result.Add(_tileMap[height, width - 1]);
-        }
-        //right
-        if (width < _heightMap.width - 1)
-        {
-            result.Add(_tileMap[height, width + 1]);
-        }
-
-        //if the column is even
-        //top-left + bottom-left
-        if (height % 2 == 0)
-        {
-            if (height > 0 && width > 0)
-            {
-                result.Add(_tileMap[height - 1, width - 1]);
-            }
-            if (height < _heightMap.height - 1 && width > 0)
-            {
-                result.Add(_tileMap[height + 1, width - 1]);
-            }
-        }
-        //if the column is uneven
-        //top-right + bottom-right
-        else
-        {
-            if (height > 0 && width < _heightMap.width - 1)
-            {
-                result.Add(_tileMap[height - 1, width + 1]);
-            }
-            if (height < _heightMap.height - 1 && width < _heightMap.width - 1)
-            {
-                result.Add(_tileMap[height + 1, width + 1]);
-            }
-        }
-
-        return result;
-    }
-
-    //Calculates money income and upkeep when an economy cycle is completed
-    private void TickEconomy()
-    {
-        //income
-        float income = 0;
-        income = _population * _IncomePerPerson;
-
-        _money += income;
-
-        //upkeep
-        float upkeep = 0;
-        for (int i = 0; i < _buildings.Count; i++)
-        {
-            upkeep += _buildings[i]._upkeep;
-        }
-
-        _money -= upkeep;
+        return _resourcesInWarehouse[resource] >= 1;
     }
 
     //Is called by MouseManager when a tile was clicked
     //Forwards the tile to the method for spawning buildings
-    public void TileClicked(int height, int width)
+    public void TileClicked(int width, int height)
     {
-        Tile t = _tileMap[height, width];
-        print(t._type);
+        Tile t = _tileMap[width, height];
 
         PlaceBuildingOnTile(t);
     }
 
     //Checks if the currently selected building type can be placed on the given tile and then instantiates an instance of the prefab
-    public void PlaceBuildingOnTile(Tile t)
+    private void PlaceBuildingOnTile(Tile t)
     {
-        //if there is a selected building prefab
-        if (_selectedBuildingPrefabIndex < _buildingPrefabs.Length)
+        //if there is building prefab for the number input
+        if (_selectedBuildingPrefabIndex < _buildingPrefabs.Count && t._building == null && _buildingPrefabs[_selectedBuildingPrefabIndex].GetComponent<Building>().canBeBuiltOn(t._type) && CheckResourcesForBuilding())
         {
-            //check if building can be placed
-            Building buildingType = _buildingPrefabs[_selectedBuildingPrefabIndex].GetComponent<Building>();
-
-            if (t._building == null && _money >= buildingType._buildCostMoney && _resourcesInWarehouse[ResourceTypes.Planks] >= buildingType._buildCostPlanks && buildingType._canBeBuiltOnTileTypes.Contains(t._type))
+            int x = t._coordinateWidth;
+            int y = t._coordinateHeight;
+            Color pixelColor = _heightMap.GetPixel(x, y);
+            Vector3 pos = new Vector3(y % 2 * line_offset + x * x_step, pixelColor.b * _heightFactor, y * y_step);
+            GameObject go = Instantiate(_buildingPrefabs[_selectedBuildingPrefabIndex], pos, Quaternion.identity);
+            Building b = go.GetComponent<Building>();
+            t._building = b;
+            b._tile = t;
+            if (b.productionBuilding)
             {
-                GameObject go = Instantiate(_buildingPrefabs[_selectedBuildingPrefabIndex], t.transform);
-                go.transform.position = t.transform.position;
-                Building b = go.GetComponent<Building>();
-                b._tile = t;
-                t._building = b;
-                _buildings.Add(b);
-                _money -= b._buildCostMoney;
-                _resourcesInWarehouse[ResourceTypes.Planks] -= b._buildCostPlanks;
+                ((ProductionBuilding)b).calc_efficiency();
+            }
+            // Building currentBuilding = _buildingPrefabs[_selectedBuildingPrefabIndex].GetComponent<Building>();
+            _resourcesInWarehouse[ResourceTypes.Planks] -= b._buildCostPlanks;
+            money -= b._buildCostMoney;
+            _buildings.Add(b);
+        }
+    }
+
+    private void EconomyCycle()
+    {
+        money += 100;
+        PayUpkeep();
+    }
+
+    private void PayUpkeep()
+    {
+        foreach (Building b in _buildings)
+        {
+            money -= b._upkeep;
+        }
+    }
+
+    private bool CheckResourcesForBuilding()
+    {
+        Building currentBuilding = _buildingPrefabs[_selectedBuildingPrefabIndex].GetComponent<Building>();
+        return (money >= currentBuilding._buildCostMoney && _resourcesInWarehouse[ResourceTypes.Planks] >= currentBuilding._buildCostPlanks);
+    }
+
+    //Returns a list of all neighbors of a given tile
+    private List<Tile> FindNeighborsOfTile(Tile t)
+    {
+        List<Tile> result = new List<Tile>();
+        int x = t._coordinateWidth;
+        int y = t._coordinateHeight;
+
+        int xSize = _tileMap.GetLength(0);
+        int ySize = _tileMap.GetLength(1);
+
+        if (y - 1 >= 0)
+        {
+            result.Add(_tileMap[x, y - 1]);
+        }
+        if (y + 1 < ySize)
+        {
+            result.Add(_tileMap[x, y + 1]);
+        }
+
+        if (y - 2 >= 0)
+        {
+            result.Add(_tileMap[x, y - 2]);
+        }
+        if (y + 2 < ySize)
+        {
+            result.Add(_tileMap[x, y + 2]);
+        }
+
+        // if height even :  width - 1
+        // if height odd : width + 1
+        bool even = (y % 2) == 0;
+
+        if (even && (x - 1 >= 0))
+        {
+            if (y - 1 >= 0)
+            {
+                result.Add(_tileMap[x - 1, y - 1]);
+            }
+            if (y + 1 < ySize)
+            {
+                result.Add(_tileMap[x - 1, y + 1]);
+            }
+        }
+
+        if (!even && (x + 1 < xSize))
+        {
+            if (y - 1 >= 0)
+            {
+                result.Add(_tileMap[x + 1, y - 1]);
+            }
+            if (y + 1 < ySize)
+            {
+                result.Add(_tileMap[x + 1, y + 1]);
             }
 
-        }
-    }
 
-    //Adds the amount of the specified resource to the dictionary
-    public void AddResourceToWarehouse(ResourceTypes resource, float amount)
-    {
-        if (_resourcesInWarehouse[resource] + amount > _maximumResourceCountInWarehouse)
-        {
-            _resourcesInWarehouse[resource] = _maximumResourceCountInWarehouse;
         }
-        else
-        {
-            _resourcesInWarehouse[resource] += amount;
-        }
-    }
 
-    //Subtracts the amount of the specified resource to the dictionary
-    public void RemoveResourceFromWarehouse(ResourceTypes resource, float amount)
-    {
-        if (_resourcesInWarehouse[resource] - amount >= 0)
-        {
-            _resourcesInWarehouse[resource] -= amount;
-        }
-        else
-        {
-            _resourcesInWarehouse[resource] = 0;
-        }
-    }
-
-    //Checks if there is at least one material for the queried resource type in the warehouse
-    public bool HasResourceInWarehoues(ResourceTypes resource)
-    {
-        return _resourcesInWarehouse[resource] >= 1;
+        return result;
     }
     #endregion
 }
