@@ -7,11 +7,6 @@ using UnityEngine;
 public class GameManager : MonoBehaviour
 {
 
-    #region Manager References
-    public static GameManager Instance; //Singleton of this manager. Can be called with static reference GameManager.Instance
-    private MouseManager _mouseManager; //Reference to MouseManager.Instance
-    #endregion
-
     public float economyWaitTime = 60.0f;
     private float timer = 0.0f;
     #region Map generation
@@ -76,10 +71,6 @@ public class GameManager : MonoBehaviour
         _buildingPrefabs.Add(schnappsdistillery);
         _buildingPrefabs.Add(sawmill);
 
-
-        _mouseManager = MouseManager.Instance;
-        _mouseManager.InitializeBounds(0, _heightMap.width * 10, 0, _heightMap.height * 8.66f);
-       
         PopulateResourceDictionary();
 
         _tileMap = new Tile[_heightMap.width, _heightMap.height];

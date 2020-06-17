@@ -1,127 +1,165 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using System.Numerics;
+using UnityEditorInternal;
 using UnityEngine;
+using UnityEngine.Tilemaps;
 
 public class MouseManager : MonoBehaviour
 {
-    #region Manager References
-    public static MouseManager Instance; //Singleton of this manager. Can be called with static reference MouseManager.Instance
-    public GameManager _gameManager; //Reference to GameManager.Instance
-    #endregion
+    private UnityEngine.Vector3 prevMousePosition;
+    private Boolean previousClickWasRight;
+    public int xAndZScrollFactor = 3;
+    public int Scrollfactor = 3;
+    public int maxHeight = 50;
+    public int minHeight = 20;
+    public Boolean foundMaxCoordinates = false;
+    float largestXInScene = 0;
+    float largestZInScene = 0;
+    float smallestXInScene = 1000000000;
+    float smallestZInScene = 1000000000;
+    public float largestXOffset = 0;
+    public float largestZOffset = 0;
+    public float smallestXOffset = 0;
+    public float smallestZOffset = 0;
 
-    #region Camera
-    public Camera _camera; //The camera object
-    public Vector3 _lastPanPosition; //The position of the mouse when the dragging begins
-
-    public float PanSpeed = 200f; //Movement speed multiplier of the camera translation
-    public float ZoomSpeedMouse = 50f; //Multiplier for zoom factor
-
-    public float[] BoundsX = new float[2]; //Camera bounds on the X axis
-    public float[] BoundsZ = new float[2]; //Camera bounds on the Z axis
-    public float[] ZoomBounds = new float[] { 10f, 85f }; //Zoom bounds on the Y axis
-    #endregion
-
-    #region MonoBehaviour
-    //Awake is called when creating this object
-    public void Awake()
-    {
-        if (Instance)
-        {
-            Destroy(this.gameObject);
-        }
-        else
-        {
-            Instance = this;
-        }
-    }
+    float x_step = 17.321f;
+    float y_step = 5f;
+    float line_offset = 8.661f;
 
     // Start is called before the first frame update
     void Start()
     {
-        _gameManager = GameManager.Instance;
+        prevMousePosition = Input.mousePosition;
+        // this is just a random position that is over the tiles
+        UnityEngine.Vector3 cameraStartPosition = new UnityEngine.Vector3(80, 50, 40);
+        Camera.main.transform.position = cameraStartPosition;
+        previousClickWasRight = false;
     }
 
     // Update is called once per frame
     void Update()
     {
-        MouseSelection();
-        MousePanning();
-    }
-    #endregion
-
-    #region Methods
-    void MouseSelection()
-    {
-        if (Input.GetMouseButtonDown(0))
+        // this happens in the first update method and not in start to prevent the case where a game object is not instantiated
+        if (!foundMaxCoordinates)
         {
-            RaycastHit hit;
-            Ray ray = _camera.ScreenPointToRay(Input.mousePosition);
-            int layerMask = LayerMask.GetMask("Tiles");
+            findMaxDimensions();
+            foundMaxCoordinates = true;
+        }
 
-            if (Physics.Raycast(ray, out hit, 1000f, layerMask))
+        // check if the mouse wheel turned
+        if (Input.mouseScrollDelta.y != 0)
+        {
+            UnityEngine.Vector3 yChange = new UnityEngine.Vector3(0, Input.mouseScrollDelta.y, 0);
+            Camera.main.transform.position += -yChange * Scrollfactor;
+
+            // limit max height
+            if (Camera.main.transform.position.y > maxHeight)
             {
-                //Debug.Log("You selected the " + hit.collider.name);
-                Tile t = hit.collider.GetComponent<Tile>();
-                _gameManager.TileClicked(t._coordinateHeight, t._coordinateWidth);
+                Camera.main.transform.position = new UnityEngine.Vector3(Camera.main.transform.position.x, maxHeight, Camera.main.transform.position.z);
+            }
+            // limit min height
+            if (Camera.main.transform.position.y < minHeight)
+            {
+                Camera.main.transform.position = new UnityEngine.Vector3(Camera.main.transform.position.x, minHeight, Camera.main.transform.position.z);
             }
         }
-    }
 
-    void MousePanning()
-    {
-        // On mouse down, capture it's position.
-        // Otherwise, if the mouse is still down, pan the camera.
-        if (Input.GetMouseButtonDown(1))
+        // we need to constantly reevaluate the last mouse position
+        UnityEngine.Vector3 currentMousePosition = Input.mousePosition;
+        if (Input.GetMouseButton(1)) // right mouse click
         {
-            _lastPanPosition = Input.mousePosition;
+            // use the movement measurement only if the measurement happened while we had right clicked previously
+            if (previousClickWasRight)
+            {
+                UnityEngine.Vector3 diffMousePosition = currentMousePosition - prevMousePosition;
+                // we only want the change to happen in x and z position, so we put y to zero
+                // y would be scrolling in/out which we will handle via mousewheel
+                UnityEngine.Vector3 noYDiffMousePosition = new UnityEngine.Vector3(diffMousePosition.x, 0, diffMousePosition.y);
+                // we invert it since it feels more natural for it to be drag and drop if it's done while the mouse button is pressed
+                UnityEngine.Vector3 invertedDiff = -noYDiffMousePosition / xAndZScrollFactor;
+
+
+                // move the camera by just as many pixels as the mouse moved since the last update
+                Camera.main.transform.position += invertedDiff;
+
+                // check min x/max x
+                if (Camera.main.transform.position.x < smallestXInScene - smallestXOffset)
+                {
+                    UnityEngine.Vector3 camPos = new UnityEngine.Vector3(smallestXInScene - smallestXOffset, Camera.main.transform.position.y, Camera.main.transform.position.z);
+                    Camera.main.transform.position = camPos;
+                }
+                else if (Camera.main.transform.position.x > largestXInScene - largestXOffset)
+                {
+                    UnityEngine.Vector3 camPos = new UnityEngine.Vector3(largestXInScene - largestXOffset, Camera.main.transform.position.y, Camera.main.transform.position.z);
+                    Camera.main.transform.position = camPos;
+                }
+
+                // check min y/max y
+                if (Camera.main.transform.position.z < smallestZInScene - smallestZOffset)
+                {
+                    UnityEngine.Vector3 camPos = new UnityEngine.Vector3(Camera.main.transform.position.x, Camera.main.transform.position.y, smallestZInScene - smallestZOffset);
+                    Camera.main.transform.position = camPos;
+                }
+                else if (Camera.main.transform.position.z > largestZInScene - largestZOffset)
+                {
+                    UnityEngine.Vector3 camPos = new UnityEngine.Vector3(Camera.main.transform.position.x, Camera.main.transform.position.y, largestZInScene - largestZOffset);
+                    Camera.main.transform.position = camPos;
+                }
+            }
+            previousClickWasRight = true;
+
         }
-        else if (Input.GetMouseButton(1))
+        else
         {
-            PanCamera(Input.mousePosition);
+            previousClickWasRight = false;
         }
+        // after we used the position, we save the last position. This allows us to compare it to the next one to see the delta.
+        prevMousePosition = currentMousePosition;
 
-        // Check for scrolling to zoom the camera
-        float scroll = Input.GetAxis("Mouse ScrollWheel");
-        ZoomCamera(scroll, ZoomSpeedMouse);
-    }
-
-    void PanCamera(Vector3 newPanPosition)
-    {
-        // Determine how much to move the camera
-        Vector3 offset = _camera.ScreenToViewportPoint(_lastPanPosition - newPanPosition);
-        Vector3 move = new Vector3(-offset.y * PanSpeed, 0, offset.x * PanSpeed);
-
-        // Perform the movement
-        _camera.transform.Translate(move, Space.World);
-
-        // Ensure the camera remains within bounds.
-        Vector3 pos = _camera.transform.position;
-        pos.x = Mathf.Clamp(_camera.transform.position.x, BoundsX[0], BoundsX[1]);
-        pos.z = Mathf.Clamp(_camera.transform.position.z, BoundsZ[0], BoundsZ[1]);
-        _camera.transform.position = pos;
-
-        // Cache the position
-        _lastPanPosition = newPanPosition;
-    }
-
-    void ZoomCamera(float offset, float speed)
-    {
-        if (offset == 0)
+        // print name of left clicked tile
+        if (Input.GetMouseButtonDown(0))
         {
-            return;
+            // generate ray from mouse position
+            Ray mouseRay = Camera.main.ScreenPointToRay(Input.mousePosition);
+            RaycastHit hit;
+            // check if object was hit
+            if (Physics.Raycast(mouseRay, out hit, maxHeight + 200, 1000))
+            {
+                int x = hit.collider.gameObject.GetComponent<Tile>()._coordinateWidth;
+                int y = hit.collider.gameObject.GetComponent<Tile>()._coordinateHeight;
+                GameObject.Find("GameManager").GetComponent<GameManager>().TileClicked(x, y);
+            }
         }
 
-        _camera.fieldOfView = Mathf.Clamp(_camera.fieldOfView - (offset * speed), ZoomBounds[0], ZoomBounds[1]);
+
     }
 
-    public void InitializeBounds(float Xleft, float Xright, float Ztop, float Zbottom)
+    private void findMaxDimensions()
     {
 
-        BoundsX = new float[2] { Xleft, Xright };
-        BoundsZ = new float[2] { Ztop, Zbottom };
+        foreach (GameObject go in Resources.FindObjectsOfTypeAll(typeof(GameObject)) as GameObject[])
+        {
+            if (go.transform.position.x > largestXInScene)
+            {
+                largestXInScene = go.transform.position.x;
+            }
+            if (go.transform.position.z > largestZInScene)
+            {
+                largestZInScene = go.transform.position.z;
+            }
 
-        _camera.transform.position = new Vector3((Xleft + Xright) / 2, _camera.transform.position.y, (Ztop + Zbottom) / 2);
+            if (go.transform.position.x < smallestXInScene)
+            {
+                smallestXInScene = go.transform.position.x;
+            }
+            if (go.transform.position.z < smallestZInScene)
+            {
+                smallestZInScene = go.transform.position.z;
+            }
+        }
+
     }
-    #endregion
 }

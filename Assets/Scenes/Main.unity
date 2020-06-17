@@ -263,20 +263,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c4fb070738f3544ea560ef08186d72d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _gameManager: {fileID: 0}
-  _camera: {fileID: 0}
-  _lastPanPosition: {x: 0, y: 0, z: 0}
-  PanSpeed: 200
-  ZoomSpeedMouse: 50
-  BoundsX:
-  - 0
-  - 0
-  BoundsZ:
-  - 0
-  - 0
-  ZoomBounds:
-  - 10
-  - 85
+  xAndZScrollFactor: 3
+  Scrollfactor: 3
+  maxHeight: 50
+  minHeight: 20
+  foundMaxCoordinates: 0
+  largestXOffset: 0
+  largestZOffset: 0
+  smallestXOffset: 0
+  smallestZOffset: 0
 --- !u!4 &834136087
 Transform:
   m_ObjectHideFlags: 0
@@ -476,15 +471,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dd580981bf7ab5845976a690fd1035a2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _heightMap: {fileID: 2800000, guid: 5a3c99d88f90289478420caf8e72dc0b, type: 3}
-  _tilePrefabs:
-  - {fileID: 3331960066271536643, guid: beaf3e6eeb231784387cb99da90a7c7d, type: 3}
-  - {fileID: 2064574628029001573, guid: 2a914b6a4ef15cb4ca77257050f15f29, type: 3}
-  - {fileID: 5575372501429904281, guid: f549c24ecaa45cb498514352a3675d1c, type: 3}
-  - {fileID: 6461190606886679958, guid: ff7ef13f88a71c94eb42898019398dcd, type: 3}
-  - {fileID: 9154993657079601320, guid: 35b64c97ffd7b7e4caf04c0e621aec7b, type: 3}
-  - {fileID: 5044814526144528268, guid: 476946919e1d5104fb4c93f1dc2db5e9, type: 3}
-  _tileParentObject: {fileID: 0}
+  economyWaitTime: 60
   fishery: {fileID: 7873365932033830391, guid: 4bfd3146fa08e554da26aab93701df70, type: 3}
   lumberjack: {fileID: 1559353585060655689, guid: a970fd8743b33144f9f3f2f0f67b84de,
     type: 3}
@@ -499,9 +486,7 @@ MonoBehaviour:
   sawmill: {fileID: 3235141735024070201, guid: a259fc1893674f54288b7a1edec58cdb, type: 3}
   _buildingPrefabs: []
   _selectedBuildingPrefabIndex: 0
-  _money: 50000
-  _population: 0
-  _maximumResourceCountInWarehouse: 100
+  money: 0
   _ResourcesInWarehouse_Fish: 0
   _ResourcesInWarehouse_Wood: 0
   _ResourcesInWarehouse_Planks: 0
@@ -509,6 +494,19 @@ MonoBehaviour:
   _ResourcesInWarehouse_Clothes: 0
   _ResourcesInWarehouse_Potato: 0
   _ResourcesInWarehouse_Schnapps: 0
+  water_tile: {fileID: 2064574628029001573, guid: 2a914b6a4ef15cb4ca77257050f15f29,
+    type: 3}
+  sand_tile: {fileID: 6461190606886679958, guid: ff7ef13f88a71c94eb42898019398dcd,
+    type: 3}
+  mountain_tile: {fileID: 9154993657079601320, guid: 35b64c97ffd7b7e4caf04c0e621aec7b,
+    type: 3}
+  forest_tile: {fileID: 3331960066271536643, guid: beaf3e6eeb231784387cb99da90a7c7d,
+    type: 3}
+  grass_tile: {fileID: 5575372501429904281, guid: f549c24ecaa45cb498514352a3675d1c,
+    type: 3}
+  stone_tile: {fileID: 5044814526144528268, guid: 476946919e1d5104fb4c93f1dc2db5e9,
+    type: 3}
+  _heightFactor: 20
 --- !u!4 &1768092942
 Transform:
   m_ObjectHideFlags: 0
