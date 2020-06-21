@@ -4,69 +4,27 @@ using UnityEngine;
 
 public abstract class Building : MonoBehaviour
 {
-    public int _upkeep; // money cost per minute
-    public int _build_cost_money; // placement money cost
-    public int _build_cost_planks; // placement planks cost
-    public Tile _tile; // tile the building is built on
-
-    public bool water_can_be_built_on;
-    public bool sand_can_be_built_on;
-    public bool grass_can_be_built_on;
-    public bool forest_can_be_built_on;
-    public bool stone_can_be_built_on;
-    public bool mountain_can_be_built_on;
-
-    public bool productionBuilding = false;
-
-    public GameObject gameManager;
-
-    protected virtual void Start()
-    {
-        gameManager = GameObject.Find("GameManager");
-    }
-
-    public bool CanBeBuiltOn(Tile.TileTypes tile)
-    {
-        if (tile == Tile.TileTypes.Water)
-        {
-            return water_can_be_built_on;
-        }
-        if (tile == Tile.TileTypes.Sand)
-        {
-            return sand_can_be_built_on;
-        }
-        if (tile == Tile.TileTypes.Grass)
-        {
-            return grass_can_be_built_on;
-        }
-        if (tile == Tile.TileTypes.Forest)
-        {
-            return forest_can_be_built_on;
-        }
-        if (tile == Tile.TileTypes.Stone)
-        {
-            return stone_can_be_built_on;
-        }
-        if (tile == Tile.TileTypes.Mountain)
-        {
-            return mountain_can_be_built_on;
-        }
-        return false;
-
-    }
-
     #region Manager References
-    JobManager _jobManager; //Reference to the JobManager
+    public JobManager _jobManager; //Reference to the JobManager
     #endregion
     
     #region Workers
     public List<Worker> _workers; //List of all workers associated with this building, either for work or living
     #endregion
 
-    #region Jobs
-    public List<Job> _jobs; // List of all available Jobs. Is populated in Start()
+    #region Attributes
+    public List<Tile.TileTypes> _canBeBuiltOn; // A restriction on which types of tiles it can be placed on
+    public BuildingType _type; // The name of the building
+    public int _upkeep; // The money cost per minute
+    public int _moneyCost; // Placement money cost
+    public int _planksCost; // Placement planks cost
+    public Tile _tile; // Reference to the tile it is built on 
+    public float _efficiency = 0f;
     #endregion
-    
+
+    #region Enumerations
+    public enum BuildingType { Empty, Fishery, Lumberjack, Sawmill, SheepFarm, FrameworkKnitters, PotatoFarm, SchnappsDistillery, FarmersResidence };
+    #endregion
 
     #region Methods   
     public void WorkerAssignedToBuilding(Worker w)
@@ -78,5 +36,8 @@ public abstract class Building : MonoBehaviour
     {
         _workers.Remove(w);
     }
+    public abstract void UpdateEfficiency();
+    public abstract void InitializeBuilding(int index, Tile t);
+
     #endregion
 }

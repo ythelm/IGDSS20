@@ -516,15 +516,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c4fb070738f3544ea560ef08186d72d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  xAndZScrollFactor: 3
-  Scrollfactor: 3
-  maxHeight: 50
-  minHeight: 20
-  foundMaxCoordinates: 0
-  largestXOffset: 0
-  largestZOffset: 0
-  smallestXOffset: 0
-  smallestZOffset: 0
+  scrollSpeed: 100
+  panSpeed: 7
+  bounds:
+    m_Center: {x: 0, y: 0, z: 0}
+    m_Extent: {x: 0, y: 0, z: 0}
+  cam: {fileID: 512232609}
+  gameManager: {fileID: 1768092941}
 --- !u!4 &834136087
 Transform:
   m_ObjectHideFlags: 0
@@ -961,18 +959,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dd580981bf7ab5845976a690fd1035a2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  economyWaitTime: 60
-  fishery: {fileID: 2746774114488504025, guid: 4cd787543f3378740a4950ddb5232696, type: 3}
-  lumberjack: {fileID: 3900913404140413534, guid: 13ca18e6750a45741939834103c008a3,
-    type: 3}
-  sheepfarm: {fileID: 194894, guid: ed8d5d775bea0bf45b5c4d517d776e08, type: 3}
-  frameworkknitters: {fileID: 199186, guid: c446b7d19195ca34daa0c9562c68e0a3, type: 3}
-  potatofarm: {fileID: 184652, guid: ab8ad74f82a4c5c408d8c4c10a850276, type: 3}
-  schnappsdistillery: {fileID: 171010, guid: cd1689019917bf9458787a69b6a2ac59, type: 3}
-  sawmill: {fileID: 87842295797770037, guid: c2796a7a44d53674588c494a78dc1b84, type: 3}
-  _buildingPrefabs: []
+  heightMap: {fileID: 2800000, guid: 5c2448c2ffa208243962d18e173c7b21, type: 3}
+  _tilePrefabs:
+  - {fileID: 305768964}
+  - {fileID: 1444095494}
+  - {fileID: 1035930096}
+  - {fileID: 2123304348}
+  - {fileID: 1977344493}
+  - {fileID: 85659671}
+  _buildingPrefabs:
+  - {fileID: 6461190606886679958, guid: 238bc01d93c1dcc40b505fbd02149026, type: 3}
+  - {fileID: 5515976021463593564, guid: 92cf4ae3cdbfd4d4e97559350688830a, type: 3}
+  - {fileID: 5575372501429904281, guid: b0268cd33d8e71040a3646eb082185dd, type: 3}
+  - {fileID: 5575372501429904281, guid: 395f4a0356745424993171fc3ab65043, type: 3}
+  - {fileID: 5575372501429904281, guid: a737a6e76f50f1349bc3319b9ecc1bb3, type: 3}
+  - {fileID: 5575372501429904281, guid: 852f207873dc66842812759febc570f5, type: 3}
+  - {fileID: 5044814526144528268, guid: 186da4171193c5c4eb68bc25b23895e5, type: 3}
+  - {fileID: 5575372501429904281, guid: 395f4a0356745424993171fc3ab65043, type: 3}
   _selectedBuildingPrefabIndex: 0
-  money: 0
   _ResourcesInWarehouse_Fish: 0
   _ResourcesInWarehouse_Wood: 0
   _ResourcesInWarehouse_Planks: 0
@@ -980,13 +984,9 @@ MonoBehaviour:
   _ResourcesInWarehouse_Clothes: 0
   _ResourcesInWarehouse_Potato: 0
   _ResourcesInWarehouse_Schnapps: 0
-  water_tile: {fileID: 305768964}
-  sand_tile: {fileID: 1444095494}
-  mountain_tile: {fileID: 85659671}
-  forest_tile: {fileID: 2123304348}
-  grass_tile: {fileID: 1035930096}
-  stone_tile: {fileID: 1977344493}
-  height_factor: 20
+  _money: 0
+  _income: 100
+  _incomePerWorker: 100
 --- !u!4 &1768092942
 Transform:
   m_ObjectHideFlags: 0

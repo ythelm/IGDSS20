@@ -1,62 +1,79 @@
-﻿using System.Collections;
+using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
+public class HousingBuilding : Building {
+    private int maxWorker = 10;
+    private int initWorker = 2;
 
-public class HousingBuilding : Building
-{
-    List<GameObject> workers;
-
-    List<GameObject> possibleWorkers;
-    public GameObject worker_female;
-    public GameObject worker_male;
-
-    private Dictionary<int, Vector3> workerPositions;
-
-    private int inhabitants;
-
-    public int start_position;
-
-    // Start is called before the first frame update
-    protected override void Start()
+    public override void InitializeBuilding(int index, Tile t)
     {
-        base.Start();
-        possibleWorkers.Add(worker_female);
-        possibleWorkers.Add(worker_male);
-        // spawns 2 grown workers when built
-        GameObject initialWorker = createWorker();
-        initialWorker.GetComponent<Worker>().SetAge(20);
-
-        GameObject initialWorker2 = createWorker();
-        initialWorker2.GetComponent<Worker>().SetAge(20);
-
+        _workers = new List<Worker>();
     }
-
-    // Update is called once per frame
-    void Update()
+    private void Awake()
     {
-        
+        // Temporary placement (TODO: Find more appropriate place)
+        _canBeBuiltOn = new List<Tile.TileTypes>();
+        _canBeBuiltOn.Add(Tile.TileTypes.Forest);
+        _canBeBuiltOn.Add(Tile.TileTypes.Grass);
+        _canBeBuiltOn.Add(Tile.TileTypes.Mountain);
+        _canBeBuiltOn.Add(Tile.TileTypes.Sand);
+        _canBeBuiltOn.Add(Tile.TileTypes.Stone);
+        _moneyCost = 0;
+        _upkeep = 0;
+        _planksCost = 0;
     }
-
-    private GameObject createWorker()
+    void Start()
     {
-        if (inhabitants < 10)
-        {
-            GameObject worker = GameObject.Instantiate(possibleWorkers[Random.Range(0, 2)], _tile.transform.position, Quaternion.identity);
-            workers.Add(worker);
-            rearrangeWorkers();
-            return worker;
-        }
-
-        return null;
+        PopulateWorkers();
+        InvokeRepeating("RegisterChildWorker", 30f/this._efficiency, 30f/this._efficiency);
     }
-
-    // arranges the workers so they don't stick in each other in front of the building
-    private void rearrangeWorkers()
+    void Update() 
     {
-        for (int i = 0; i < workers.Count; i++)
-        {
-            double x = workers[i].transform.position.x - 4 + 0.6 * i;
-            workers[i].transform.position = new Vector3((float) x, workers[i].transform.position.y, workers[i].transform.position.z);
-        }
+        UpdateEfficiency();
+    }
+    // Register two grown workers 
+    private void PopulateWorkers()
+    {
+        for (int i = 0; i < initWorker; i++)
+            GetWorkerFromPooler(18);
+    }
+    // Register child worker
+    private void RegisterChildWorker()
+    {
+        if(_workers.Count < maxWorker)
+            GetWorkerFromPooler(0);
+    }
+    // Get Worker object from Pooled GameObject
+    private void GetWorkerFromPooler(int age)
+    {
+        GameObject obj = (GameObject) WorkerPooler.Instance.GetPooledWorker();
+
+        if (obj == null) return;
+
+        Worker w = obj.GetComponent<Worker>() as Worker; 
+        w._age = age;
+        w._house = this;
+        WorkerAssignedToBuilding(w);
+
+        obj.transform.position = transform.position;
+        obj.transform.rotation = transform.rotation;
+        obj.SetActive(true);
+    }
+    // The efficiency should depend on the average happiness of the workers living there. 
+    float ComputeEfficiency()
+    {   
+       
+        float sum = 0;
+        foreach(Worker w in _workers)
+            sum += w._happiness;
+        // happiness is in the range (0, 1), 
+        // so we can get a value in (0,1) by dividing the number of works
+        return sum/_workers.Count;
+    }
+    public override void UpdateEfficiency()
+    {
+        this._efficiency = ComputeEfficiency();
     }
 }
