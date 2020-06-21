@@ -5,7 +5,7 @@ using UnityEngine;
 public class JobManager : MonoBehaviour
 {
 
-    public List<Job> _availableJobs = new List<Job>();
+    private List<Job> _availableJobs = new List<Job>();
     public List<Worker> _unoccupiedWorkers = new List<Worker>();
 
 
@@ -27,7 +27,7 @@ public class JobManager : MonoBehaviour
 
     #region Methods
 
-    public void HandleUnoccupiedWorkers()
+    private void HandleUnoccupiedWorkers()
     {
         if (_unoccupiedWorkers.Count > 0)
         {

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -56,8 +56,7 @@ public class MouseManager : MonoBehaviour
             Camera.main.transform.position += -yChange * Scrollfactor;
 
             // limit max height
-            if (Camera.main.transform.position.y > maxHeight)
-            {
+            if(Camera.main.transform.position.y > maxHeight){
                 Camera.main.transform.position = new UnityEngine.Vector3(Camera.main.transform.position.x, maxHeight, Camera.main.transform.position.z);
             }
             // limit min height
@@ -86,7 +85,7 @@ public class MouseManager : MonoBehaviour
                 Camera.main.transform.position += invertedDiff;
 
                 // check min x/max x
-                if (Camera.main.transform.position.x < smallestXInScene - smallestXOffset)
+                if(Camera.main.transform.position.x < smallestXInScene - smallestXOffset)
                 {
                     UnityEngine.Vector3 camPos = new UnityEngine.Vector3(smallestXInScene - smallestXOffset, Camera.main.transform.position.y, Camera.main.transform.position.z);
                     Camera.main.transform.position = camPos;
@@ -133,14 +132,14 @@ public class MouseManager : MonoBehaviour
                 GameObject.Find("GameManager").GetComponent<GameManager>().TileClicked(x, y);
             }
         }
-
+        
 
     }
 
     private void findMaxDimensions()
     {
 
-        foreach (GameObject go in Resources.FindObjectsOfTypeAll(typeof(GameObject)) as GameObject[])
+        foreach(GameObject go in Resources.FindObjectsOfTypeAll(typeof(GameObject)) as GameObject[])
         {
             if (go.transform.position.x > largestXInScene)
             {

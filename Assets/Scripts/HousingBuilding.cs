@@ -2,81 +2,61 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class HousingBuilding : MonoBehaviour
+public class HousingBuilding : Building
 {
-    public int _upkeep; // money cost per minute
-    public int _build_cost_money; // placement money cost
-    public int _build_cost_planks; // placement planks cost
-    public Tile _tile; // tile the building is built on
+    List<GameObject> workers;
 
-    public bool water_can_be_built_on;
-    public bool sand_can_be_built_on;
-    public bool grass_can_be_built_on;
-    public bool forest_can_be_built_on;
-    public bool stone_can_be_built_on;
-    public bool mountain_can_be_built_on;
+    List<GameObject> possibleWorkers;
+    public GameObject worker_female;
+    public GameObject worker_male;
 
-    public bool productionBuilding = false;
+    private Dictionary<int, Vector3> workerPositions;
 
-    public GameObject gameManager;
+    private int inhabitants;
 
-    protected virtual void Start()
+    public int start_position;
+
+    // Start is called before the first frame update
+    protected override void Start()
     {
-        gameManager = GameObject.Find("GameManager");
-    }
+        base.Start();
+        possibleWorkers.Add(worker_female);
+        possibleWorkers.Add(worker_male);
+        // spawns 2 grown workers when built
+        GameObject initialWorker = createWorker();
+        initialWorker.GetComponent<Worker>().SetAge(20);
 
-    public bool CanBeBuiltOn(Tile.TileTypes tile)
-    {
-        if (tile == Tile.TileTypes.Water)
-        {
-            return water_can_be_built_on;
-        }
-        if (tile == Tile.TileTypes.Sand)
-        {
-            return sand_can_be_built_on;
-        }
-        if (tile == Tile.TileTypes.Grass)
-        {
-            return grass_can_be_built_on;
-        }
-        if (tile == Tile.TileTypes.Forest)
-        {
-            return forest_can_be_built_on;
-        }
-        if (tile == Tile.TileTypes.Stone)
-        {
-            return stone_can_be_built_on;
-        }
-        if (tile == Tile.TileTypes.Mountain)
-        {
-            return mountain_can_be_built_on;
-        }
-        return false;
+        GameObject initialWorker2 = createWorker();
+        initialWorker2.GetComponent<Worker>().SetAge(20);
 
     }
 
-    #region Manager References
-    JobManager _jobManager; //Reference to the JobManager
-    #endregion
-
-    #region Workers
-    public List<Worker> _workers; //List of all workers associated with this building, either for work or living
-    #endregion
-
-    #region Jobs
-    public List<Job> _jobs; // List of all available Jobs. Is populated in Start()
-    #endregion
-
-
-    #region Methods   
-    public void WorkerAssignedToBuilding(Worker w)
+    // Update is called once per frame
+    void Update()
     {
-        _workers.Add(w);
+        
     }
 
-    public void WorkerRemovedFromBuilding(Worker w)
+    private GameObject createWorker()
     {
-        _workers.Remove(w);
+        if (inhabitants < 10)
+        {
+            GameObject worker = GameObject.Instantiate(possibleWorkers[Random.Range(0, 2)], _tile.transform.position, Quaternion.identity);
+            workers.Add(worker);
+            rearrangeWorkers();
+            return worker;
+        }
+
+        return null;
     }
-    #endregion
+
+    // arranges the workers so they don't stick in each other in front of the building
+    private void rearrangeWorkers()
+    {
+        for (int i = 0; i < workers.Count; i++)
+        {
+            double x = workers[i].transform.position.x - 4 + 0.6 * i;
+            workers[i].transform.position = new Vector3((float) x, workers[i].transform.position.y, workers[i].transform.position.z);
+        }
+    }
 }

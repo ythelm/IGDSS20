@@ -7,6 +7,7 @@ using UnityEngine;
 public class GameManager : MonoBehaviour
 {
 
+
     public float economyWaitTime = 60.0f;
     private float timer = 0.0f;
     #region Map generation
@@ -51,16 +52,16 @@ public class GameManager : MonoBehaviour
 
 
 
-    public float _heightFactor = 20f;
+    public float height_factor = 20f;
     // Start is called before the first frame update
-
+    
     float x_step = 17.321f;
     float y_step = 5f;
     float line_offset = 8.661f;
-    Texture2D _heightMap;
+    Texture2D heightmap;
     void Start()
     {
-        _heightMap = Resources.Load("Heightmap_16", typeof(Texture2D)) as Texture2D; //Resources.Load("Assets/Textures/Heightmap_16") as Texture2D;
+        heightmap = Resources.Load("Heightmap_16", typeof(Texture2D)) as Texture2D; //Resources.Load("Assets/Textures/Heightmap_16") as Texture2D;
         //Texture2D heightmap = (Texture2D)Resources.LoadAssetAtPath("Assets/Textures/Heightmap_16", typeof(Texture2D));
         int x, y;
         _buildingPrefabs.Add(fishery);
@@ -73,14 +74,14 @@ public class GameManager : MonoBehaviour
 
         PopulateResourceDictionary();
 
-        _tileMap = new Tile[_heightMap.width, _heightMap.height];
+        _tileMap = new Tile[heightmap.width, heightmap.height];
         // Loop through the images pixels to reset color.
-        for (x = 0; x < _heightMap.width; x++)
+        for (x = 0; x < heightmap.width; x++)
         {
-            for (y = 0; y < _heightMap.height; y++)
+            for (y = 0; y < heightmap.height; y++)
             {
-                Color pixelColor = _heightMap.GetPixel(x, y);
-                Vector3 pos = new Vector3(y % 2 * line_offset + x * x_step, pixelColor.b * _heightFactor, y * y_step);
+                Color pixelColor = heightmap.GetPixel(x, y);
+                Vector3 pos = new Vector3(y % 2 * line_offset + x * x_step, pixelColor.b * height_factor, y * y_step);
                 GameObject go;
                 if (pixelColor.b < 0.01)
                 {
@@ -114,9 +115,9 @@ public class GameManager : MonoBehaviour
             }
         }
 
-        for (x = 0; x < _heightMap.width; x++)
+        for (x = 0; x < heightmap.width; x++)
         {
-            for (y = 0; y < _heightMap.height; y++)
+            for (y = 0; y < heightmap.height; y++)
             {
                 _tileMap[x, y]._neighborTiles = FindNeighborsOfTile(_tileMap[x, y]);
             }
@@ -229,23 +230,23 @@ public class GameManager : MonoBehaviour
     private void PlaceBuildingOnTile(Tile t)
     {
         //if there is building prefab for the number input
-        if (_selectedBuildingPrefabIndex < _buildingPrefabs.Count && t._building == null && _buildingPrefabs[_selectedBuildingPrefabIndex].GetComponent<Building>().canBeBuiltOn(t._type) && CheckResourcesForBuilding())
+        if (_selectedBuildingPrefabIndex < _buildingPrefabs.Count && t._building == null && _buildingPrefabs[_selectedBuildingPrefabIndex].GetComponent<Building>().CanBeBuiltOn(t._type) && CheckResourcesForBuilding())
         {
             int x = t._coordinateWidth;
             int y = t._coordinateHeight;
-            Color pixelColor = _heightMap.GetPixel(x, y);
-            Vector3 pos = new Vector3(y % 2 * line_offset + x * x_step, pixelColor.b * _heightFactor, y * y_step);
+            Color pixelColor = heightmap.GetPixel(x, y);
+            Vector3 pos = new Vector3(y % 2 * line_offset + x * x_step, pixelColor.b * height_factor, y * y_step);
             GameObject go = Instantiate(_buildingPrefabs[_selectedBuildingPrefabIndex], pos, Quaternion.identity);
             Building b = go.GetComponent<Building>();
             t._building = b;
             b._tile = t;
             if (b.productionBuilding)
             {
-                ((ProductionBuilding)b).calc_efficiency();
+                ((ProductionBuilding) b).calc_efficiency();
             }
             // Building currentBuilding = _buildingPrefabs[_selectedBuildingPrefabIndex].GetComponent<Building>();
-            _resourcesInWarehouse[ResourceTypes.Planks] -= b._buildCostPlanks;
-            money -= b._buildCostMoney;
+            _resourcesInWarehouse[ResourceTypes.Planks] -= b._build_cost_planks;
+            money -= b._build_cost_money;
             _buildings.Add(b);
         }
     }
@@ -258,7 +259,7 @@ public class GameManager : MonoBehaviour
 
     private void PayUpkeep()
     {
-        foreach (Building b in _buildings)
+        foreach(Building b in _buildings)
         {
             money -= b._upkeep;
         }
@@ -267,7 +268,7 @@ public class GameManager : MonoBehaviour
     private bool CheckResourcesForBuilding()
     {
         Building currentBuilding = _buildingPrefabs[_selectedBuildingPrefabIndex].GetComponent<Building>();
-        return (money >= currentBuilding._buildCostMoney && _resourcesInWarehouse[ResourceTypes.Planks] >= currentBuilding._buildCostPlanks);
+        return (money >= currentBuilding._build_cost_money && _resourcesInWarehouse[ResourceTypes.Planks] >= currentBuilding._build_cost_planks);
     }
 
     //Returns a list of all neighbors of a given tile
@@ -284,7 +285,7 @@ public class GameManager : MonoBehaviour
         {
             result.Add(_tileMap[x, y - 1]);
         }
-        if (y + 1 < ySize)
+        if(y + 1 < ySize)
         {
             result.Add(_tileMap[x, y + 1]);
         }
@@ -302,7 +303,7 @@ public class GameManager : MonoBehaviour
         // if height odd : width + 1
         bool even = (y % 2) == 0;
 
-        if (even && (x - 1 >= 0))
+        if(even && (x - 1 >= 0))
         {
             if (y - 1 >= 0)
             {
@@ -314,15 +315,15 @@ public class GameManager : MonoBehaviour
             }
         }
 
-        if (!even && (x + 1 < xSize))
-        {
-            if (y - 1 >= 0)
+        if(!even && (x + 1 < xSize))
             {
-                result.Add(_tileMap[x + 1, y - 1]);
-            }
-            if (y + 1 < ySize)
-            {
-                result.Add(_tileMap[x + 1, y + 1]);
+                if (y - 1 >= 0)
+                {
+                    result.Add(_tileMap[x + 1, y - 1]);
+                }
+                if (y + 1 < ySize)
+                {
+                    result.Add(_tileMap[x + 1, y + 1]);
             }
 
 

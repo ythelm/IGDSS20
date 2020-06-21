@@ -6,8 +6,8 @@ using UnityEngine;
 public class Worker : MonoBehaviour
 {
     #region Manager References
-    public JobManager _jobManager; //Reference to the JobManager
-    public GameManager _gameManager;//Reference to the GameManager
+    JobManager _jobManager; //Reference to the JobManager
+    GameManager _gameManager;//Reference to the GameManager
     #endregion
 
     public float _age; // The age of this worker
@@ -74,7 +74,7 @@ public class Worker : MonoBehaviour
 
     }
 
-    public void consume()
+    private void consume()
     {
         if (gameManager._resourcesInWarehouse[GameManager.ResourceTypes.Fish] >= 0.001f)
         {
@@ -110,7 +110,7 @@ public class Worker : MonoBehaviour
         }
 
 
-        if (hasAJob)
+        if(hasAJob)
         {
             increaseHappiness();
         }
@@ -120,17 +120,17 @@ public class Worker : MonoBehaviour
         }
     }
 
-    public void reduceHappiness()
+    private void reduceHappiness()
     {
 
         // catch case where happiness would dip below zero
         happiness = Math.Max(happiness - 0.25f, 0);
     }
 
-    public void increaseHappiness()
+    private void increaseHappiness()
     {
 
-        happiness = Math.Min(happiness + 0.25f, 10f);
+         happiness = Math.Min(happiness + 0.25f, 10f);
     }
 
     public void BecomeOfAge()
@@ -138,12 +138,12 @@ public class Worker : MonoBehaviour
         _jobManager.RegisterWorker(this);
     }
 
-    public void Retire()
+    private void Retire()
     {
         _jobManager.RemoveWorker(this);
     }
 
-    public void Die()
+    private void Die()
     {
         Destroy(this.gameObject, 1f);
     }

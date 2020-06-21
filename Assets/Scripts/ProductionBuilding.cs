@@ -8,8 +8,8 @@ using UnityEngine;
 
 public class ProductionBuilding : Building
 {
-    public float timer = 0.0f;
-    public float _efficiency; // Calculated based on the surrounding tile types
+    private float timer = 0.0f;
+    private float _efficiency; // Calculated based on the surrounding tile types
     public int _resource_generation_interval; // If operating at 100% efficiency, this is the time in seconds it takes for one production cycle to finish
     public int _output_count; // The number of output resources per generation cycle (for example the Sawmill produces 2 planks at a time)
     public Boolean input_is_wood;
@@ -49,7 +49,7 @@ public class ProductionBuilding : Building
                 else
                 {
                     // prevent efficiency > 1
-                    _efficiency = Math.Min(1, (float)neighbors / (float)_max_neighbors);
+                    _efficiency = Math.Min(1, (float) neighbors / (float) _max_neighbors);
                 }
                 return;
             }
@@ -65,7 +65,7 @@ public class ProductionBuilding : Building
                 else
                 {
                     // prevent efficiency > 1
-                    _efficiency = Math.Min(1, (float)neighbors / (float)_max_neighbors);
+                    _efficiency = Math.Min(1, (float) neighbors / (float) _max_neighbors);
                 }
                 return;
             }
@@ -81,7 +81,7 @@ public class ProductionBuilding : Building
                 else
                 {
                     // prevent efficiency > 1
-                    _efficiency = Math.Min(1, (float)neighbors / (float)_max_neighbors);
+                    _efficiency = Math.Min(1, (float) neighbors / (float) _max_neighbors);
                 }
                 return;
             }
@@ -114,22 +114,22 @@ public class ProductionBuilding : Building
         if (_efficiency > 0)
         {
             float interval = _resource_generation_interval + (1 - _efficiency) * 3 * _resource_generation_interval;
-            timer += Time.deltaTime;
+                    timer += Time.deltaTime;
 
-            if (timer > interval)
-            {
-                GameManager gm = gameManager.GetComponent<GameManager>();
-                if (input_ressource == GameManager.ResourceTypes.None || gm._resourcesInWarehouse[input_ressource] >= 1)
-                {
-                    if (input_ressource != GameManager.ResourceTypes.None)
+                    if (timer >  interval)
                     {
-                        gm._resourcesInWarehouse[input_ressource] -= 1;
+                        GameManager gm = gameManager.GetComponent<GameManager>();
+                        if (input_ressource == GameManager.ResourceTypes.None || gm._resourcesInWarehouse[input_ressource] >= 1)
+                        {
+                            if (input_ressource != GameManager.ResourceTypes.None)
+                            {
+                                gm._resourcesInWarehouse[input_ressource] -= 1;
+                            }
+                            gm._resourcesInWarehouse[output_ressource] += _output_count;
+                        }
+                        timer = timer - interval;
                     }
-                    gm._resourcesInWarehouse[output_ressource] += _output_count;
-                }
-                timer = timer - interval;
-            }
         }
-
+        
     }
 }

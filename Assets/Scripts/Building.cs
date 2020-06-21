@@ -5,8 +5,8 @@ using UnityEngine;
 public abstract class Building : MonoBehaviour
 {
     public int _upkeep; // money cost per minute
-    public int _buildCostMoney; // placement money cost
-    public int _buildCostPlanks; // placement planks cost
+    public int _build_cost_money; // placement money cost
+    public int _build_cost_planks; // placement planks cost
     public Tile _tile; // tile the building is built on
 
     public bool water_can_be_built_on;
@@ -25,7 +25,7 @@ public abstract class Building : MonoBehaviour
         gameManager = GameObject.Find("GameManager");
     }
 
-    public bool canBeBuiltOn(Tile.TileTypes tile)
+    public bool CanBeBuiltOn(Tile.TileTypes tile)
     {
         if (tile == Tile.TileTypes.Water)
         {
@@ -58,7 +58,7 @@ public abstract class Building : MonoBehaviour
     #region Manager References
     JobManager _jobManager; //Reference to the JobManager
     #endregion
-
+    
     #region Workers
     public List<Worker> _workers; //List of all workers associated with this building, either for work or living
     #endregion
@@ -66,7 +66,7 @@ public abstract class Building : MonoBehaviour
     #region Jobs
     public List<Job> _jobs; // List of all available Jobs. Is populated in Start()
     #endregion
-
+    
 
     #region Methods   
     public void WorkerAssignedToBuilding(Worker w)
