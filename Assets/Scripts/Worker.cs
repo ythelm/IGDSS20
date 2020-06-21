@@ -10,11 +10,11 @@ public class Worker : MonoBehaviour
     #endregion
 
     public int _age = 0; // The age of this worker
-    public float _happiness = 1; // The happiness of this worker, between 0 and 1
-    public bool _employed = false; // the status of employment. We will set it to true in job class
+    public float _happiness = 1; // happiness of the worker measured as float, between 0 and 1
+    public bool _employed = false; // status of employment
 
     public HousingBuilding _house; // house building
-    public Job _job; // reference to job, we can know where he or she works
+    public Job _job; // references to particular a job
     public List<GameManager.ResourceTypes> _resoucesToConsume 
     {
         get { return new List<GameManager.ResourceTypes> {
@@ -22,7 +22,8 @@ public class Worker : MonoBehaviour
             GameManager.ResourceTypes.Schnapps,
             GameManager.ResourceTypes.Clothes
         }; }
-    } // resources that each worker consumes
+
+    } // resources which are consumed by every worker
 
     public Worker(HousingBuilding b)
     {
@@ -54,7 +55,8 @@ public class Worker : MonoBehaviour
     }
     private void Age()
     {
-        //When becoming of age, the worker enters the job market, and leaves it when retiring.
+        //method that defines in which phase of life a human being is
+
         if (_age > 100)
         {
             Die();
@@ -72,11 +74,10 @@ public class Worker : MonoBehaviour
         }
     }
 
-    private void EventualDeath()
+    private void workerDies()
     {
-        //Eventually, the worker dies and leaves an empty space in his home. His Job occupation is also freed up.
+        //cycle that describes the process of dying
         float prob = Random.Range(0f, 1f);
-        // Calculation of death: 0.015 * Age - Happiness
         if (0.015f * _age - _happiness > prob)
             Die();
     }
@@ -108,14 +109,13 @@ public class Worker : MonoBehaviour
     } 
     float ComputeHappiness()
     {
-        // Employment status and resources in warehouse give each 1/4 part of
-        // the whole happiness
+
         float _hasJob = 0.25f;
         float _happinessGrade = 0f;
-        // Does worker have a job?
+        // is the worker employed
         if (this._job != null)
             _happinessGrade += _hasJob;
-        // Is worker supplied with resources?
+        // is the worker provided with resources
         foreach (var res in _resoucesToConsume)
         {
             if (_gameManager.HasResourceInWarehouse(res))

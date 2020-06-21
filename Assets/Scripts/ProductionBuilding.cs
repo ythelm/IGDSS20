@@ -7,8 +7,8 @@ public class ProductionBuilding: Building
 {
     #region Attributes
 
-    public float _resourceGenerationInterval; // If operating at 100% efficiency, this is the time in seconds it takes for one production cycle to finish
-    public float _outputCount; // The number of output resources per generation cycle(for example the Sawmill produces 2 planks at a time)
+    public float _resourceGenerationInterval; // time to finish production cylce if efficency is about 100 %
+    public float _outputCount; // The number of output resources per generation cycle
 
     public bool _scalesWithNeighboringTiles; // A choice if its efficiency scales with a specific type of surrounding tile
     public int _minNeighbors; // The minimum number of surrounding tiles its efficiency scales with(0-6)
@@ -18,7 +18,7 @@ public class ProductionBuilding: Building
     #endregion
 
     #region Job
-    public List<Job> _jobs = new List<Job>(); // all jobs belongs to the building
+    public List<Job> _jobs = new List<Job>(); 
     public int _jobsCapacity;
     #endregion
 
@@ -137,11 +137,7 @@ public class ProductionBuilding: Building
                 break;
         }
     }
-    // TODO: I am not sure how to compute efficiency. Here is my understanding:
-    // Efficiency is the average of
-    // - surrounding tiles
-    // - number of employees
-    // - happiness of employees
+
     float ComputeEfficiency()
     {
         float result = 1f;

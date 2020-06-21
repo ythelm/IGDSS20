@@ -199,7 +199,7 @@ public class GameManager : MonoBehaviour
         _ResourcesInWarehouse_Schnapps = _resourcesInWarehouse[ResourceTypes.Schnapps];
     }
 
-    //Checks if there is at least one material for the queried resource type in the warehouse
+   
     public bool HasResourceInWarehouse(ResourceTypes resource)
     {
         return _resourcesInWarehouse[resource] >= 1;
@@ -252,18 +252,17 @@ public class GameManager : MonoBehaviour
     {
         List<Tile> result = new List<Tile>();
 
-        //TODO: put all neighbors in the result list - DONE
         int w = _tileMap.GetLength(1) - 1;  // number of columns
         int h = _tileMap.GetLength(0) - 1; // number of rows
         int x = t._coordinateWidth;
         int y = t._coordinateHeight; 
         bool isEven = y % 2 == 0;
 
-        // Left
+
         if (x > 0) result.Add(_tileMap[y, x-1]); 
-        // Right
+   
         if (x < w) result.Add(_tileMap[y, x+1]); 
-        // Down
+    
         if (y > 0) 
         {
             if (isEven && x > 0) result.Add(_tileMap[y-1, x-1]);
@@ -271,7 +270,7 @@ public class GameManager : MonoBehaviour
 
             result.Add(_tileMap[y-1, x]); 
         }
-        // Up
+
         if (y < h)
         {
             if (isEven && x > 0) result.Add(_tileMap[y+1, x-1]);
@@ -282,7 +281,7 @@ public class GameManager : MonoBehaviour
 
         return result;
     }
-    // Tick economy every 60 seconds. 
+    // economy Ticker every 60 sec.
     // Subtract the sum of all building's upkeep cost from the money pool. 
     // Also, add a constant income of 100 money per economy tick.
     IEnumerator TickEconomy()

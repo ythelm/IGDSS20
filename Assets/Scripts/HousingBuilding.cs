@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+
 public class HousingBuilding : Building {
     private int maxWorker = 10;
     private int initWorker = 2;
@@ -13,7 +14,6 @@ public class HousingBuilding : Building {
     }
     private void Awake()
     {
-        // Temporary placement (TODO: Find more appropriate place)
         _canBeBuiltOn = new List<Tile.TileTypes>();
         _canBeBuiltOn.Add(Tile.TileTypes.Forest);
         _canBeBuiltOn.Add(Tile.TileTypes.Grass);
@@ -33,19 +33,19 @@ public class HousingBuilding : Building {
     {
         UpdateEfficiency();
     }
-    // Register two grown workers 
+    // spawning workers
     private void PopulateWorkers()
     {
         for (int i = 0; i < initWorker; i++)
             GetWorkerFromPooler(18);
     }
-    // Register child worker
+    // spawning worker childs
     private void RegisterChildWorker()
     {
         if(_workers.Count < maxWorker)
             GetWorkerFromPooler(0);
     }
-    // Get Worker object from Pooled GameObject
+    // getting an worker object from the pooled GameObject
     private void GetWorkerFromPooler(int age)
     {
         GameObject obj = (GameObject) WorkerPooler.Instance.GetPooledWorker();
@@ -61,7 +61,9 @@ public class HousingBuilding : Building {
         obj.transform.rotation = transform.rotation;
         obj.SetActive(true);
     }
-    // The efficiency should depend on the average happiness of the workers living there. 
+
+    //Efficeny pending on the happines of the workers
+
     float ComputeEfficiency()
     {   
        
