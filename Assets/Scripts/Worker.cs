@@ -5,135 +5,122 @@ using UnityEngine;
 public class Worker : MonoBehaviour
 {
     #region Manager References
-    public JobManager _jobManager; //Reference to the JobManager
-    public GameManager _gameManager;//Reference to the GameManager
+    JobManager _jobManager; //Reference to the JobManager
+    GameManager _gameManager;//Reference to the GameManager
     #endregion
 
-    public int _age = 0; // The age of this worker
-    public float _happiness = 1; // The happiness of this worker, between 0 and 1
-    public bool _employed = false; // the status of employment. We will set it to true in job class
+    public float _age; // The age of this worker
+    public float _happiness; // The happiness of this worker
 
-    public HousingBuilding _house; // house building
-    public Job _job; // reference to job, we can know where he or she works
-    public List<GameManager.ResourceTypes> _resoucesToConsume 
-    {
-        get { return new List<GameManager.ResourceTypes> {
-            GameManager.ResourceTypes.Fish,
-            GameManager.ResourceTypes.Schnapps,
-            GameManager.ResourceTypes.Clothes
-        }; }
-    } // resources that each worker consumes
+    public Job _job; //The job this worker is assigned to
+    public HousingBuilding _home; //The house this worker is assigned to
 
-    public Worker(HousingBuilding b)
-    {
-        this._house = b;
-    }
-    private void Awake()
-    {
-        _jobManager = JobManager.Instance;
-        _gameManager = GameManager.Instance;
-    }
+    public float _agingInterval = 15; //The time in seconds it takes for a worker to age by one year
+    private float _agingProgress; //The counter that needs to be incrementally increased during a production cycle
+    private bool _becameOfAge = false;
+    private bool _retired = false;
+
     // Start is called before the first frame update
     void Start()
     {
-        InvokeRepeating("IncrementAge", 15f, 15f);
+        _gameManager = GameManager.Instance;
     }
 
     // Update is called once per frame
     void Update()
     {
         Age();
-        Debug.Log("Current Age: " + this._age);
     }
-    // increment age by 1
-    private void IncrementAge()
-    {
-        EventualDeath();
-        _age++;
-        ConsumeResources();
-    }
+
     private void Age()
     {
-        //When becoming of age, the worker enters the job market, and leaves it when retiring.
+        _agingProgress += Time.deltaTime;
+        if (_agingProgress > _agingInterval)
+        {
+            _agingProgress = 0;
+            _age++;
+            ConsumeResourcesAndCalculateHappiness();
+            ChanceOfDeath();
+        }
+
+        if (_age > 14 && !_becameOfAge)
+        {
+            BecomeOfAge();
+        }
+
+        if (_age > 64 && !_retired)
+        {
+            Retire();
+        }
+
         if (_age > 100)
         {
             Die();
-            return;
-        }
-        if (_age > 64)
-        {
-            Retire();
-            return;
-        }
-        if (_age > 14)
-        {
-            BecomeOfAge();
-            return;
         }
     }
 
-    private void EventualDeath()
+    private void ConsumeResourcesAndCalculateHappiness()
     {
-        //Eventually, the worker dies and leaves an empty space in his home. His Job occupation is also freed up.
-        float prob = Random.Range(0f, 1f);
-        // Calculation of death: 0.015 * Age - Happiness
-        if (0.015f * _age - _happiness > prob)
+        bool fish = _gameManager.RemoveResourceFromWarehouse(GameManager.ResourceTypes.Fish, 2);
+        bool clothes = _gameManager.RemoveResourceFromWarehouse(GameManager.ResourceTypes.Clothes, 2);
+        bool schnapps = _gameManager.RemoveResourceFromWarehouse(GameManager.ResourceTypes.Schnapps, 2);
+        bool job = _job != null;
+
+        float happinessTarget = (fish ? 25 : 0) + (clothes ? 25 : 0) + (schnapps ? 25 : 0) + (job ? 25 : 10);
+        _happiness = (happinessTarget + _happiness) / 2;
+    }
+
+    private void ChanceOfDeath()
+    {
+        float chanceOfDeath = _age * 0.1f * (100f / _happiness);
+
+        float rng = Random.Range(0f, 100f);
+
+        if (rng < chanceOfDeath)
+        {
             Die();
+        }
+    }
+
+    public void AssignToJob(Job job)
+    {
+        _job = job;
+    }
+
+    public void AssignToHome(HousingBuilding home)
+    {
+        _home = home;
+    }
+
+    public void BeBorn()
+    {
+        _age = 0;
+        gameObject.name = "Child";
     }
 
     public void BecomeOfAge()
     {
+        _becameOfAge = true;
+
+        _jobManager = JobManager.Instance;
         _jobManager.RegisterWorker(this);
+        gameObject.name = "Worker";
     }
 
     private void Retire()
     {
-        _jobManager.ReleaseJob(this);
+        _retired = true;
+        _jobManager.RemoveWorker(this);
+        gameObject.name = "Retiree";
     }
 
     private void Die()
     {
-        Retire();
-        // reset the worker
-        this._age = 0;
-        this._happiness = 1f;
-        this._employed = false;
-        // remove this worker from the house where he or she lives
-        this._house.WorkerRemovedFromBuilding(this);
-        // remove this worker from the house where he or she works
-        if (this._job != null)
-            this._job._prodBuilding.WorkerRemovedFromBuilding(this);
+        if (_job != null ) {_jobManager.RemoveWorker(this);}
+        _home.RemoveWorker(this);
+        GameManager.Instance.RemoveWorker(this);
+        print("A " + gameObject.name + " has died");
 
-        this.gameObject.SetActive(false);
-    } 
-    float ComputeHappiness()
-    {
-        // Employment status and resources in warehouse give each 1/4 part of
-        // the whole happiness
-        float _hasJob = 0.25f;
-        float _happinessGrade = 0f;
-        // Does worker have a job?
-        if (this._job != null)
-            _happinessGrade += _hasJob;
-        // Is worker supplied with resources?
-        foreach (var res in _resoucesToConsume)
-        {
-            if (_gameManager.HasResourceInWarehouse(res))
-                _happinessGrade += 0.25f;
-        }
-
-        return _happinessGrade;
-    }
-    private void UpdateHappiness()
-    {
-        this._happiness = ComputeHappiness();
-    }
-    private void ConsumeResources()
-    {
-        foreach(var res in _resoucesToConsume)
-        {
-            if (_gameManager.HasResourceInWarehouse(res))
-                _gameManager._resourcesInWarehouse[res]--;
-        }
+        Destroy(this.gameObject, 1f);
     }
 }

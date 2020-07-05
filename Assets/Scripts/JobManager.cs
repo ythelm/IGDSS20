@@ -4,24 +4,39 @@ using UnityEngine;
 
 public class JobManager : MonoBehaviour
 {
+    #region Manager References
+    public static JobManager Instance; //Singleton of this manager. Can be called with static reference JobManager.Instance
+    public GameManager _gameManager; //Reference to GameManager
+    #endregion
 
-    public List<Job> _availableJobs = new List<Job>();
+    private Dictionary<string, List<Job>> _availableJobsByType = new Dictionary<string, List<Job>>(); //Holds a list of all available jobs for each building _type
+    private Dictionary<string, List<Job>> _occupiedJobsByType = new Dictionary<string, List<Job>>(); //Holds a list of all occupied jobs for each building _type
+    private List<Job> _availableJobs = new List<Job>();
+
     public List<Worker> _unoccupiedWorkers = new List<Worker>();
+    public int _unoccupiedWorkersDisplay;
+    public int _unoccupiedJobsDisplay;
 
-    private static JobManager _instance;
-    public static JobManager Instance
+
+    #region MonoBehaviour
+    //Awake is called when creating this object
+    private void Awake()
     {
-        get
+        if (Instance)
         {
-            return _instance ? _instance : (_instance = (new GameObject("JobManager").AddComponent<JobManager>()));
+            Destroy(this.gameObject);
+        }
+        else
+        {
+            Instance = this;
         }
     }
 
-    #region MonoBehaviour
+
     // Start is called before the first frame update
     void Start()
     {
-
+        _gameManager = GameManager.Instance;
     }
 
     // Update is called once per frame
@@ -31,67 +46,114 @@ public class JobManager : MonoBehaviour
     }
     #endregion
 
-
     #region Methods
+    public void RegisterBuilding(Building b, List<Job> jobs)
+    {
+        if (!_availableJobsByType.ContainsKey(b._type))
+        {
+            _availableJobsByType.Add(b._type, new List<Job>());
+            _occupiedJobsByType.Add(b._type, new List<Job>());
+        }
+        //register into list
+        _availableJobsByType[b._type].AddRange(jobs);
+        _availableJobs.AddRange(jobs);
+        _unoccupiedJobsDisplay += jobs.Count;
+
+        HandleUnoccupiedWorkers();
+    }
 
     private void HandleUnoccupiedWorkers()
     {
         if (_unoccupiedWorkers.Count > 0)
         {
-
-            //TODO: What should be done with unoccupied workers?
-            foreach(Worker w in _unoccupiedWorkers)
+            for (int i = 0; i < _unoccupiedWorkers.Count; i++)
             {
-                if(_availableJobs == null || _availableJobs.Count == 0) break;
-                else
-                {   // Assign a job to a worker randomly
-                   int index = Random.Range(0, _availableJobs.Count);
-                   Job job = _availableJobs[index];
-                   RemoveJob(index);
-                   // Update properties of job
-                   job.AssignWorker(w);
-                   job._prodBuilding.WorkerAssignedToBuilding(w);
-                   
-                   RemoveWorker(w);
-                   w._job = job;
-                }
+                Worker w = _unoccupiedWorkers[0];
 
+                if (_availableJobs.Count > 0)
+                {
+                    Job job = FindAnyOpenJob();
+
+                    if (job != null)
+                    {
+                        AssignWorkerToJob(w, job);
+                        _unoccupiedWorkers.RemoveAt(0);
+                    }
+                }
+                else
+                {
+                    break;
+                }
             }
         }
     }
 
-    public void RegisterJobs(List<Job> j)
-    {
-        _availableJobs.AddRange(j);
-    }
-    public void RegisterJob(Job j)
-    {
-        _availableJobs.Add(j);
-    }
-    public void RemoveJob(Job j)
-    {
-        _availableJobs.Remove(j);
-    }
-    public void RemoveJob(int index)
-    {
-        _availableJobs.RemoveAt(index);
-    }
-
     public void RegisterWorker(Worker w)
     {
+        _unoccupiedWorkersDisplay++;
         _unoccupiedWorkers.Add(w);
     }
-    public void RemoveWorker(Worker w)
+
+
+    private Job FindAnyOpenJob()
     {
-        _unoccupiedWorkers.Remove(w);
+        Job job = null;
+
+        if (_availableJobs.Count > 0)
+        {
+            int rng = Random.Range(0, _availableJobs.Count);
+
+            job = _availableJobs[rng];
+        }
+
+        return job;
     }
-    public void ReleaseJob(Worker w)
+
+    private Job FindOpenJob(string jobType)
+    {
+        Job job = null;
+
+        if (_availableJobsByType[jobType].Count > 0)
+        {
+            job = _availableJobsByType[jobType][0];
+        }
+
+        return job;
+    }
+
+    public void RemoveWorker(Worker w)
     {
         if (w._job != null)
         {
-            w._job._worker = null;
-            RegisterJob(w._job);
+            Job job = w._job;
+            job.RemoveWorker(w);
+            w._job = null;
+
+            _occupiedJobsByType[job._building._type].Remove(job);
+            _availableJobsByType[job._building._type].Add(job);
+            _availableJobs.Add(job);
+            _unoccupiedJobsDisplay++;
         }
+        else
+        {
+            if (_unoccupiedWorkers.Contains(w))
+            {
+                _unoccupiedWorkers.Remove(w);
+            }
+        }
+    }
+
+    public void AssignWorkerToJob(Worker w, Job job)
+    {
+
+        _availableJobsByType[job._building._type].Remove(job);
+        _occupiedJobsByType[job._building._type].Add(job);
+        _availableJobs.Remove(job);
+        _unoccupiedWorkersDisplay--;
+        _unoccupiedJobsDisplay--;
+
+        job.AssignWorker(w);
+        w.AssignToJob(job);
     }
 
     #endregion

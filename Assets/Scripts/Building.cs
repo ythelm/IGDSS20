@@ -1,43 +1,86 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public abstract class Building : MonoBehaviour
 {
     #region Manager References
-    public JobManager _jobManager; //Reference to the JobManager
+    JobManager _jobManager; //Reference to the JobManager
+    NavigationManager _navigationManager; //Reference to the NavigationManager
     #endregion
-    
+
+    #region Basic Attributes
+    public string _type; //The name of the building
+    public float _upkeep; //The money cost per minute
+    public float _buildCostMoney; //placement money cost
+    public float _buildCostPlanks; //placement planks cost
+    public Tile _tile; //Reference to the tile it is built on
+    protected List<Tile> _neighborTiles; //List of all neighboring tiles, derived from _tile
+    public int[,] _pathFindingMap;
+    #endregion
+
+    #region Tile Restrictions
+    public List<Tile.TileTypes> _canBeBuiltOnTileTypes; //A list that defines all types of tiles it can be placed on. Increase the number in the inspector and then choose from the drop-down menu
+    #endregion
+
     #region Workers
     public List<Worker> _workers; //List of all workers associated with this building, either for work or living
     #endregion
 
-    #region Attributes
-    public List<Tile.TileTypes> _canBeBuiltOn; // A restriction on which types of tiles it can be placed on
-    public BuildingType _type; // The name of the building
-    public int _upkeep; // The money cost per minute
-    public int _moneyCost; // Placement money cost
-    public int _planksCost; // Placement planks cost
-    public Tile _tile; // Reference to the tile it is built on 
-    public float _efficiency = 0f;
+    #region Jobs
+    public int _availableJobs; //The maximum number of workers assigned to a job at this building. Used for efficiency
+    public int _occupiedJobs; //The current number of workers assigned to a job at this building. Used for efficiency
+    public List<Job> _jobs; // List of all available Jobs
     #endregion
 
-    #region Enumerations
-    public enum BuildingType { Empty, Fishery, Lumberjack, Sawmill, SheepFarm, FrameworkKnitters, PotatoFarm, SchnappsDistillery, FarmersResidence };
+    #region MonoBehaviour
+    // Start is called before the first frame update
+    protected virtual void Start()
+    {
+        _neighborTiles = _tile._neighborTiles;
+        _workers = new List<Worker>();
+
+        // Generate map
+         _jobManager = JobManager.Instance;
+
+        if (_availableJobs > 0)
+        {
+            GenerateJobs();
+           
+            _jobManager.RegisterBuilding(this, _jobs);
+        }
+
+    _pathFindingMap = NavigationManager.generateMap(_tile, _jobManager._gameManager);
+    }
+
+    // Update is called once per frame
+    protected virtual void Update()
+    {
+
+    }
     #endregion
 
-    #region Methods   
+    #region Methods
+    private void GenerateJobs()
+    {
+        _jobs = new List<Job>()
+            ;
+        for (int i = 0; i < _availableJobs; i++)
+        {
+            _jobs.Add(new Job(this));
+        }
+    }
+
     public void WorkerAssignedToBuilding(Worker w)
     {
         _workers.Add(w);
+        _occupiedJobs++;
     }
 
     public void WorkerRemovedFromBuilding(Worker w)
     {
         _workers.Remove(w);
+        _occupiedJobs--;
     }
-    public abstract void UpdateEfficiency();
-    public abstract void InitializeBuilding(int index, Tile t);
-
     #endregion
 }
