@@ -49,6 +49,7 @@ MonoBehaviour:
   _buildCostMoney: 0
   _buildCostPlanks: 2
   _tile: {fileID: 0}
+  _neighborTiles: []
   _canBeBuiltOnTileTypes: 02000000030000000400000005000000
   _workers: []
   _availableJobs: 0
@@ -57,7 +58,7 @@ MonoBehaviour:
   _progressPercent: 0
   _efficiency: 0
   _availableHousings: 10
-  _startingPeople: 2
+  _startingPeople: 10
   _housedPeople: 0
 --- !u!1001 &425104434912437687
 PrefabInstance:

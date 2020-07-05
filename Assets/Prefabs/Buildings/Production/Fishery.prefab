@@ -56,6 +56,7 @@ MonoBehaviour:
   _buildCostMoney: 100
   _buildCostPlanks: 2
   _tile: {fileID: 0}
+  _neighborTiles: []
   _canBeBuiltOnTileTypes: 02000000
   _workers: []
   _availableJobs: 25

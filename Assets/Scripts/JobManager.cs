@@ -153,6 +153,7 @@ public class JobManager : MonoBehaviour
         _unoccupiedJobsDisplay--;
 
         job.AssignWorker(w);
+        print("assigned worker to job" + job._building._type);
         w.AssignToJob(job);
     }
 

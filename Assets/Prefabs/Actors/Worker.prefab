@@ -111,3 +111,7 @@ MonoBehaviour:
   _happiness: 75
   _home: {fileID: 7974565109067665347, guid: 9f7c12318f45cac4891dc4b136bd20fb, type: 3}
   _agingInterval: 15
+  _Workplace: {fileID: 0}
+  speed: 1
+  _worker: {fileID: 4409615396134790654}
+  _nowOnTile: {fileID: 0}

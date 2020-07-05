@@ -35,7 +35,7 @@ public class GameManager : MonoBehaviour
     public int _population; //Number of people available. Currently only one tier of workers
     public GameObject _workerPrefab;
     public Transform _workerParentObject; //Reference to the parent object in the hierarchy for all spawned workers
-    //public List<Worker> _workers; // All spawned workers
+    public List<Worker> _workers; // All spawned workers
     #endregion
 
     #region Resources

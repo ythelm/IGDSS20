@@ -423,7 +423,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 78b0efc6f2d18e447b30856e93bd2388, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _gameManager: {fileID: 0}
+  _unoccupiedWorkers: []
   _unoccupiedWorkersDisplay: 0
+  _unoccupiedJobsDisplay: 0
 --- !u!1 &1457566342
 GameObject:
   m_ObjectHideFlags: 0
@@ -600,10 +603,11 @@ MonoBehaviour:
   _selectedBuildingPrefabIndex: 0
   _buildings: []
   _money: 50000
-  _population: 0
+  _population: 10
   _workerPrefab: {fileID: 4409615396134790654, guid: c29b8b7e0e311074583de4eb9cae1cce,
     type: 3}
   _workerParentObject: {fileID: 1665849752}
+  _workers: []
   _maximumResourceCountInWarehouse: 100
   _ResourcesInWarehouse_Fish: 20
   _ResourcesInWarehouse_Wood: 0

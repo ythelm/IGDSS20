@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class Worker : MonoBehaviour
 {
@@ -20,16 +21,26 @@ public class Worker : MonoBehaviour
     private bool _becameOfAge = false;
     private bool _retired = false;
 
+    public Building _Workplace; // js
+    // Adjust the speed for the movement.
+    public float speed = 1.0f;
+    public GameObject _worker;
+    public Tile _nowOnTile;
+
+
     // Start is called before the first frame update
     void Start()
     {
         _gameManager = GameManager.Instance;
+        _worker = GameObject.Find("Worker");
+        _nowOnTile = _home._tile;
     }
 
     // Update is called once per frame
     void Update()
     {
-        Age();
+       Age();
+//       if (_job != null) {MoveToJob();}
     }
 
     private void Age()
@@ -85,6 +96,9 @@ public class Worker : MonoBehaviour
     public void AssignToJob(Job job)
     {
         _job = job;
+        _Workplace=job._building;
+        print("I assigned to job" + job._building._type);
+        StartCoroutine("MoveToJob");
     }
 
     public void AssignToHome(HousingBuilding home)
@@ -122,5 +136,46 @@ public class Worker : MonoBehaviour
         print("A " + gameObject.name + " has died");
 
         Destroy(this.gameObject, 1f);
+    }
+
+    public IEnumerator MoveToJob(){
+         int[,] pfm =_Workplace._pathFindingMap;
+        while (_Workplace._tile != _nowOnTile){
+        MoveTo(getNextTile(pfm));
+        yield return null;
+        }
+    }
+
+    public Tile getNextTile (int[,] pfm)
+    {
+        List<Tile> neighbors = _nowOnTile._neighborTiles;
+        
+        int nextTileWeight = 2147483647;
+        Tile nextTile = _home._tile;
+        
+        foreach (Tile tl in neighbors)
+        {
+           int h = tl._coordinateHeight;
+           int w = tl._coordinateWidth;
+            if (pfm[h,w] < nextTileWeight){
+                nextTileWeight = pfm[h,w];
+                nextTile = _gameManager._tileMap[h,w];
+            }
+        }
+        print("NowOnTile " + _nowOnTile + " nextTile" + nextTile);
+        return nextTile;
+    }
+
+    public void MoveTo(Tile t)
+    {
+        Transform tf = t.transform;
+        if (_worker != null) 
+        {
+        float step =  speed * Time.deltaTime; // calculate distance to move
+        // Move our position a step closer to the target:
+        transform.position = Vector3.MoveTowards(_worker.transform.position, tf.position, step);
+        _nowOnTile = t;
+        }
+    
     }
 }

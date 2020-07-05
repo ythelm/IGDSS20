@@ -15,7 +15,7 @@ public abstract class Building : MonoBehaviour
     public float _buildCostMoney; //placement money cost
     public float _buildCostPlanks; //placement planks cost
     public Tile _tile; //Reference to the tile it is built on
-    protected List<Tile> _neighborTiles; //List of all neighboring tiles, derived from _tile
+    public List<Tile> _neighborTiles; //List of all neighboring tiles, derived from _tile
     public int[,] _pathFindingMap;
     #endregion
 
